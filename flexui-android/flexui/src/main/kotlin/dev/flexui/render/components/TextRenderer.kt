@@ -129,7 +129,7 @@ class TextRenderer : FlexComponentFactory {
         
         // Set selectable
         val selectable = props.getBoolean("selectable", false)
-        textView.isTextSelectable = selectable
+        textView.setTextIsSelectable(selectable)
         
         // Set single line
         val singleLine = props.getBoolean("singleLine", false)
