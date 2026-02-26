@@ -59,7 +59,7 @@ class ButtonRenderer : FlexComponentFactory {
         button.typeface = typeface
         
         // Set button style/type
-        val buttonType = props.getString("type", "filled")
+        val buttonType = props.getString("type", "filled") ?: "filled"
         applyButtonType(button, buttonType, theme, themeResolver)
         
         // Set enabled/disabled state
