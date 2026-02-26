@@ -1,4 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">FlexUI Sample</string>
+    <string name="app_name">FlexUI Gamification Demo</string>
+    <string name="demo_title">⚡ FlexUI Gamification Demo</string>
+    <string name="demo_subtitle">Real-world gamification use cases for Flyy SDK</string>
+    
+    <!-- Tab titles -->
+    <string name="tab_scratch_card">💰 Scratch Card</string>
+    <string name="tab_spin_result">🏆 Spin Result</string>
+    <string name="tab_quiz">❓ Quiz</string>
+    <string name="tab_rewards">🎁 Rewards</string>
+    <string name="tab_widget_demo">📱 Widget Demo</string>
+    
+    <!-- Common UI strings -->
+    <string name="powered_by_flexui">Powered by FlexUI ⚡</string>
+    <string name="loading">Loading...</string>
+    <string name="error_rendering">Failed to render content</string>
+    
+    <!-- Gamification strings -->
+    <string name="congratulations">🎉 Congratulations! 🎉</string>
+    <string name="you_won">You won!</string>
+    <string name="claim_reward">🎯 Claim Reward</string>
+    <string name="share_achievement">📤 Share Achievement</string>
+    <string name="view_details">👀 View Details</string>
+    <string name="continue_text">🚀 Continue</string>
+    <string name="skip_question">⏭️ Skip Question</string>
+    <string name="redeem">Redeem</string>
+    
+    <!-- Demo descriptions -->
+    <string name="scratch_card_desc">Interactive scratch card reward experience</string>
+    <string name="spin_result_desc">Gamified spin wheel result with leaderboard</string>
+    <string name="quiz_desc">Engaging daily quiz challenge with timer</string>
+    <string name="rewards_desc">Complete rewards dashboard with categories</string>
+    <string name="widget_desc">FlexUI widget embedded in native screen</string>
 </resources>
