@@ -69,7 +69,7 @@ class RowRenderer : FlexComponentFactory {
         // This would require a custom layout like FlexboxLayout
         
         // Set weighted distribution
-        row.weightSum = props.getFloat("weightSum", 0f)
+        row.weightSum = props.getFloat("weightSum") ?: 0f
         
         // Set baseline alignment
         val baselineAligned = props.getBoolean("baselineAligned", true)

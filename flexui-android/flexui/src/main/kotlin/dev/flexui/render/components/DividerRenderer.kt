@@ -24,7 +24,7 @@ class DividerRenderer : FlexComponentFactory {
     private fun applyDividerProperties(dividerView: View, props: FlexProps, theme: FlexTheme) {
         // Set orientation and size
         val orientation = props.getString("orientation", "horizontal")
-        val thickness = props.getInt("thickness", 1)
+        val thickness = props.getInt("thickness") ?: 1
         
         val layoutParams = when (orientation) {
             "horizontal" -> ViewGroup.LayoutParams(

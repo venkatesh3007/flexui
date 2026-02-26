@@ -4,9 +4,9 @@ package dev.flexui
  * Represents an error that occurred during FlexUI operations.
  */
 data class FlexError(
-    val message: String,
+    override val message: String,
     val code: ErrorCode,
-    val cause: Throwable? = null
+    override val cause: Throwable? = null
 ) : Exception(message, cause) {
     
     /**

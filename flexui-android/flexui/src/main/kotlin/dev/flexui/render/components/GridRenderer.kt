@@ -24,7 +24,7 @@ class GridRenderer : FlexComponentFactory {
     
     private fun applyGridProperties(gridLayout: GridLayout, props: FlexProps, theme: FlexTheme) {
         // Set column count
-        val columns = props.getInt("columns", 2)
+        val columns = props.getInt("columns") ?: 2
         gridLayout.columnCount = columns
         
         // Set row count (optional)

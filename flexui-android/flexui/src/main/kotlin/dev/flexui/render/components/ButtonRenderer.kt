@@ -20,17 +20,17 @@ class ButtonRenderer : FlexComponentFactory {
         val button = Button(context)
         
         // Apply button-specific properties
-        applyButtonProperties(button, props, theme)
+        applyButtonProperties(context, button, props, theme)
         
         return button
     }
     
-    private fun applyButtonProperties(button: Button, props: FlexProps, theme: FlexTheme) {
+    private fun applyButtonProperties(context: Context, button: Button, props: FlexProps, theme: FlexTheme) {
         val themeResolver = ThemeResolver(theme)
         
         // Set button text
         val text = props.getString("text") ?: props.getString("title") ?: ""
-        val resolvedText = themeResolver.replaceVariables(text)
+        val resolvedText = themeResolver.replaceVariables(text) ?: ""
         button.text = resolvedText
         
         // Set text size

@@ -80,7 +80,7 @@ class TextRenderer : FlexComponentFactory {
         }
         
         // Set max lines
-        val maxLines = props.getInt("maxLines", Int.MAX_VALUE)
+        val maxLines = props.getInt("maxLines") ?: Int.MAX_VALUE
         if (maxLines != Int.MAX_VALUE) {
             textView.maxLines = maxLines
         }
@@ -142,7 +142,7 @@ class TextRenderer : FlexComponentFactory {
                     textView.setAutoSizeTextTypeUniformWithConfiguration(
                         minSize,
                         maxSize,
-                        props.getInt("autoSizeStepGranularity", 1),
+                        props.getInt("autoSizeStepGranularity") ?: 1,
                         TypedValue.COMPLEX_UNIT_SP
                     )
                 }
@@ -151,8 +151,8 @@ class TextRenderer : FlexComponentFactory {
         
         // Set shadow if specified
         props.getFloat("shadowRadius")?.let { shadowRadius ->
-            val shadowDx = props.getFloat("shadowDx", 0f)
-            val shadowDy = props.getFloat("shadowDy", 0f)
+            val shadowDx = props.getFloat("shadowDx") ?: 0f
+            val shadowDy = props.getFloat("shadowDy") ?: 0f
             val shadowColor = props.getString("shadowColor")?.let { color ->
                 themeResolver.resolveColor(color)
             } ?: 0x80000000.toInt()

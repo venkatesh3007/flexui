@@ -95,7 +95,7 @@ class ActionDispatcher private constructor() {
                     globalHandlers["error"]?.handle(FlexAction.callback("error", mapOf(
                         "type" to "url_open_failed",
                         "url" to url,
-                        "error" to e.message
+                        "error" to (e.message ?: "Unknown error")
                     )))
                 }
             }
@@ -126,7 +126,7 @@ class ActionDispatcher private constructor() {
                     globalHandlers["error"]?.handle(FlexAction.callback("error", mapOf(
                         "type" to "event_handler_error",
                         "event" to event,
-                        "error" to e.message
+                        "error" to (e.message ?: "Unknown error")
                     )))
                 }
             }

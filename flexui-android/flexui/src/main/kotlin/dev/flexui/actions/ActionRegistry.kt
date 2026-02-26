@@ -12,7 +12,7 @@ class ActionRegistry {
     
     private val typeHandlers = ConcurrentHashMap<String, CopyOnWriteArrayList<HandlerEntry>>()
     private val eventHandlers = ConcurrentHashMap<String, CopyOnWriteArrayList<HandlerEntry>>()
-    private val interceptors = CopyOnWriteArrayList<ActionInterceptor>()
+    private val interceptors = CopyOnWriteArrayList<InterceptorEntry>()
     
     /**
      * Register a handler for a specific action type

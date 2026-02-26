@@ -71,7 +71,7 @@ class ColumnRenderer : FlexComponentFactory {
         // This would require a custom layout like FlexboxLayout
         
         // Set weighted distribution
-        column.weightSum = props.getFloat("weightSum", 0f)
+        column.weightSum = props.getFloat("weightSum") ?: 0f
         
         // Set baseline alignment
         val baselineAligned = props.getBoolean("baselineAligned", false)
