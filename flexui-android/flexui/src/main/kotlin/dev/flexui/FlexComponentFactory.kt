@@ -9,7 +9,7 @@ import dev.flexui.schema.FlexTheme
  * Interface for creating custom FlexUI components.
  * Implement this interface to register custom component types.
  */
-interface FlexComponentFactory {
+fun interface FlexComponentFactory {
     /**
      * Create a View for this component type.
      * 

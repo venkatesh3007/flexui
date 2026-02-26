@@ -6,7 +6,7 @@ import dev.flexui.schema.FlexAction
  * Interface for handling FlexUI actions.
  * Implement this interface to handle user interactions and custom actions.
  */
-interface FlexActionHandler {
+fun interface FlexActionHandler {
     /**
      * Handle a FlexUI action.
      * 
