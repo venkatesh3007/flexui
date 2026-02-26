@@ -89,6 +89,17 @@ class ScratchCardView @JvmOverloads constructor(
         }
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        // Fallback: if onSizeChanged didn't fire yet, try after layout
+        post {
+            if (coverBitmap == null && width > 0 && height > 0) {
+                initCover()
+                invalidate()
+            }
+        }
+    }
+
     private fun initCover() {
         val w = width
         val h = height

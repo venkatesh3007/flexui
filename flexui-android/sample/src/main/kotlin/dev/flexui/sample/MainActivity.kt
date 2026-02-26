@@ -222,7 +222,7 @@ class MainActivity : AppCompatActivity() {
               "amount": "500"
             },
             "style": {
-              "height": 220,
+              "height": 550,
               "marginBottom": "{{spacing.xl}}"
             }
           },
