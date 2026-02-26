@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caching - FlexUI Documentation</title>
+    <meta name="description" content="Learn about FlexUI's caching system: cache policies, TTL configuration, memory and disk caching.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+</head>
+<body>
+    <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+    
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">FlexUI</a>
+                <div class="sidebar-subtitle">Server-Driven Native UI</div>
+            </div>
+            
+            <div class="nav">
+                <ul>
+                    <li><a href="index.html">Overview</a></li>
+                    <li><a href="getting-started.html">Getting Started</a></li>
+                    <li><a href="components.html">Components</a></li>
+                    <li><a href="theming.html">Theming</a></li>
+                    <li><a href="custom-components.html">Custom Components</a></li>
+                    <li><a href="actions.html">Actions</a></li>
+                    <li><a href="caching.html">Caching</a></li>
+                    <li><a href="api-reference.html">API Reference</a></li>
+                    <li><a href="migration.html">Migration Guide</a></li>
+                </ul>
+            </div>
+            
+            <div class="github-link">
+                <a href="https://github.com/venkatesh3007/flexui" class="github-button" target="_blank">
+                    View on GitHub
+                </a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <div class="content">
+                <h1>Caching</h1>
+                <p>FlexUI includes a sophisticated caching system that improves performance by reducing network requests and enabling offline functionality. The caching system supports multiple policies, TTL (Time To Live) configuration, and both memory and disk storage.</p>
+
+                <section>
+                    <h2>Cache Policies</h2>
+                    <p>FlexUI supports four cache policies that determine how configurations are fetched and cached:</p>
+
+                    <h3>CACHE_FIRST</h3>
+                    <div class="alert info">
+                        <p><strong>Default Policy:</strong> Use cache if available, fetch in background to update for next time.</p>
+                    </div>
+                    
+                    <pre><code class="language-java">FlexConfig config = new FlexConfig.Builder("https://api.example.com")
+    .cachePolicy(CachePolicy.CACHE_FIRST)
+    .cacheTtlMinutes(60)
+    .build();</code></pre>
+
+                    <p><strong>Behavior:</strong></p>
+                    <ol>
+                        <li>Check if cached version exists and is not expired</li>
+                        <li>If valid cache exists, return immediately</li>
+                        <li>Fetch fresh version in background for next request</li>
+                        <li>If no cache exists, fetch from network</li>
+                    </ol>
+
+                    <p><strong>Best for:</strong> Production apps where performance is critical and occasional stale content is acceptable.</p>
+
+                    <h3>NETWORK_FIRST</h3>
+                    <pre><code class="language-java">FlexConfig config = new FlexConfig.Builder("https://api.example.com")
+    .cachePolicy(CachePolicy.NETWORK_FIRST)
+    .cacheTtlMinutes(30)
+    .build();</code></pre>
+
+                    <p><strong>Behavior:</strong></p>
+                    <ol>
+                        <li>Always try to fetch from network first</li>
+                        <li>If network request succeeds, cache and return result</li>
+                        <li>If network fails, fallback to cache (if available)</li>
+                        <li>If no cache exists and network fails, return error</li>
+                    </ol>
+
+                    <p><strong>Best for:</strong> Content that changes frequently and freshness is more important than performance.</p>
+
+                    <h3>CACHE_ONLY</h3>
+                    <pre><code class="language-java">FlexConfig config = new FlexConfig.Builder("https://api.example.com")
+    .cachePolicy(CachePolicy.CACHE_ONLY)
+    .build();</code></pre>
+
+                    <p><strong>Behavior:</strong></p>
+                    <ol>
+                        <li>Only use cached versions, never make network requests</li>
+                        <li>Return cached version if available (regardless of TTL)</li>
+                        <li>Return null if no cache exists</li>
+                    </ol>
+
+                    <p><strong>Best for:</strong> Offline mode, debugging, or when you want to ensure no network usage.</p>
+
+                    <h3>NETWORK_ONLY</h3>
+                    <pre><code class="language-java">FlexConfig config = new FlexConfig.Builder("https://api.example.com")
+    .cachePolicy(CachePolicy.NETWORK_ONLY)
+    .build();</code></pre>
+
+                    <p><strong>Behavior:</strong></p>
+                    <ol>
+                        <li>Always fetch from network, never use cache</li>
+                        <li>Don't save responses to cache</li>
+                        <li>Fail if network is unavailable</li>
+                    </ol>
+
+                    <p><strong>Best for:</strong> Development, testing, or highly sensitive content that should never be cached.</p>
+                </section>
+
+                <section>
+                    <h2>TTL Configuration</h2>
+                    <p>Configure how long cached configurations remain valid:</p>
+
+                    <h3>Setting TTL</h3>
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Java</div>
+                            <pre><code class="language-java">// TTL in milliseconds
+FlexConfig config = new FlexConfig.Builder("https://api.example.com")
+    .cacheTtlMs(3600_000) // 1 hour
+    .build();
+
+// TTL in seconds (convenience method)
+FlexConfig config = new FlexConfig.Builder("https://api.example.com")
+    .cacheTtlSeconds(3600) // 1 hour
+    .build();
+
+// TTL in minutes (convenience method)
+FlexConfig config = new FlexConfig.Builder("https://api.example.com")
+    .cacheTtlMinutes(60) // 1 hour
+    .build();</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Kotlin</div>
+                            <pre><code class="language-kotlin">// TTL in milliseconds
+val config = FlexConfig.Builder("https://api.example.com")
+    .cacheTtlMs(3600_000) // 1 hour
+    .build()
+
+// TTL in seconds (convenience method)
+val config = FlexConfig.Builder("https://api.example.com")
+    .cacheTtlSeconds(3600) // 1 hour
+    .build()
+
+// TTL in minutes (convenience method)
+val config = FlexConfig.Builder("https://api.example.com")
+    .cacheTtlMinutes(60) // 1 hour
+    .build()</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>Recommended TTL Values</h3>
+                    <table>
+                        <tr><th>Content Type</th><th>TTL</th><th>Reason</th></tr>
+                        <tr><td>Static layouts</td><td>24 hours</td><td>Rarely change, safe to cache long</td></tr>
+                        <tr><td>User profiles</td><td>1 hour</td><td>Updated occasionally</td></tr>
+                        <tr><td>Product listings</td><td>15 minutes</td><td>Prices and inventory change</td></tr>
+                        <tr><td>Live content</td><td>1 minute</td><td>Real-time updates needed</td></tr>
+                        <tr><td>Promotional banners</td><td>30 minutes</td><td>Campaign changes</td></tr>
+                    </table>
+                </section>
+
+                <section>
+                    <h2>Manual Cache Management</h2>
+                    
+                    <h3>Refresh Specific Screen</h3>
+                    <p>Force refresh a specific screen's configuration:</p>
+
+                    <pre><code class="language-java">// Clear cache for specific screen
+FlexUI.refreshConfig("user_profile");
+
+// Then render fresh version
+View profileView = FlexUI.render(context, "user_profile", userData);</code></pre>
+
+                    <h3>Clear All Cache</h3>
+                    <p>Clear all cached configurations:</p>
+
+                    <pre><code class="language-java">// Clear all cached configurations
+FlexUI.clearCache();
+
+// Useful when user logs out or changes settings
+public void onUserLogout() {
+    FlexUI.clearCache();
+    navigateToLogin();
+}</code></pre>
+
+                    <h3>Preload Configurations</h3>
+                    <p>Preload configurations in the background:</p>
+
+                    <pre><code class="language-java">// Preload important screens
+String[] importantScreens = {"home", "profile", "settings"};
+for (String screenId : importantScreens) {
+    FlexUI.renderAsync(context, screenId, new HashMap<>(), 
+        new FlexRenderCallback() {
+            @Override
+            public void onSuccess(View view) {
+                // Configuration is now cached
+            }
+            
+            @Override
+            public void onError(FlexError error) {
+                Log.w("Preload", "Failed to preload: " + screenId);
+            }
+        });
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Cache Storage</h2>
+                    
+                    <h3>Two-Level Cache</h3>
+                    <p>FlexUI uses a two-level cache system:</p>
+
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>Memory Cache</strong>
+                            <p>Fast access, lost on app restart</p>
+                            <ul>
+                                <li>Recently used configurations</li>
+                                <li>Parsed JSON objects</li>
+                                <li>Limited size (LRU eviction)</li>
+                            </ul>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Disk Cache</strong>
+                            <p>Persistent, survives app restarts</p>
+                            <ul>
+                                <li>All cached configurations</li>
+                                <li>Raw JSON strings</li>
+                                <li>TTL metadata</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3>Cache Flow</h3>
+                    <div class="architecture-diagram">
+Request for "user_profile"
+         │
+         ▼
+┌─────────────────┐
+│  Memory Cache   │ ◄── Fast lookup
+│   Check TTL     │
+└─────────────────┘
+         │ Cache Miss
+         ▼
+┌─────────────────┐
+│   Disk Cache    │ ◄── Persistent storage
+│   Check TTL     │
+└─────────────────┘
+         │ Cache Miss
+         ▼
+┌─────────────────┐
+│  Network Fetch  │ ◄── HTTP request
+│  Parse & Cache  │
+└─────────────────┘
+         │
+         ▼
+    Return Result
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Cache Headers & Server Control</h2>
+                    
+                    <h3>HTTP Cache Headers</h3>
+                    <p>Your server can control caching behavior using HTTP headers:</p>
+
+                    <pre><code class="language-http">HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: max-age=3600, public
+ETag: "v1.0.0-abc123"
+Last-Modified: Mon, 01 Jan 2024 12:00:00 GMT
+
+{
+  "version": "1.0",
+  "theme": { ... },
+  "root": { ... }
+}</code></pre>
+
+                    <h4>Cache-Control Directives</h4>
+                    <table>
+                        <tr><th>Directive</th><th>Effect</th></tr>
+                        <tr><td><code>max-age=3600</code></td><td>Cache for 1 hour</td></tr>
+                        <tr><td><code>no-cache</code></td><td>Always validate with server</td></tr>
+                        <tr><td><code>no-store</code></td><td>Never cache</td></tr>
+                        <tr><td><code>private</code></td><td>Only cache on client</td></tr>
+                        <tr><td><code>public</code></td><td>Can be cached anywhere</td></tr>
+                    </table>
+
+                    <h3>Conditional Requests</h3>
+                    <p>FlexUI supports conditional requests to minimize bandwidth:</p>
+
+                    <pre><code class="language-http">GET /flexui/user_profile HTTP/1.1
+Host: api.example.com
+If-None-Match: "v1.0.0-abc123"
+If-Modified-Since: Mon, 01 Jan 2024 12:00:00 GMT</code></pre>
+
+                    <pre><code class="language-http">HTTP/1.1 304 Not Modified
+Cache-Control: max-age=3600
+ETag: "v1.0.0-abc123"</code></pre>
+
+                    <h3>Server-side Cache Control</h3>
+                    <p>Configure different cache policies per screen:</p>
+
+                    <pre><code class="language-json">{
+  "version": "1.0",
+  "cachePolicy": {
+    "ttl": 1800,
+    "policy": "cache_first"
+  },
+  "theme": { ... },
+  "root": { ... }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Performance Optimization</h2>
+                    
+                    <h3>Cache Warming</h3>
+                    <p>Warm the cache during app initialization:</p>
+
+                    <pre><code class="language-java">public class AppInitializer {
+    public static void warmCache(Context context) {
+        // Critical screens that should load fast
+        String[] criticalScreens = {"home", "navigation"};
+        
+        for (String screenId : criticalScreens) {
+            // Preload in background
+            new Thread(() -> {
+                try {
+                    FlexUI.render(context, screenId, new HashMap<>());
+                } catch (Exception e) {
+                    Log.w("CacheWarming", "Failed to warm: " + screenId, e);
+                }
+            }).start();
+        }
+    }
+}</code></pre>
+
+                    <h3>Selective Caching</h3>
+                    <p>Different cache policies for different screen types:</p>
+
+                    <pre><code class="language-java">public class FlexUIManager {
+    private static FlexConfig staticConfig = new FlexConfig.Builder(BASE_URL)
+        .cachePolicy(CachePolicy.CACHE_FIRST)
+        .cacheTtlMinutes(1440) // 24 hours
+        .build();
+        
+    private static FlexConfig dynamicConfig = new FlexConfig.Builder(BASE_URL)
+        .cachePolicy(CachePolicy.NETWORK_FIRST)
+        .cacheTtlMinutes(15)
+        .build();
+    
+    public static View renderStaticScreen(Context context, String screenId) {
+        // Use long cache for static content
+        return FlexUI.renderWithConfig(context, screenId, staticConfig);
+    }
+    
+    public static View renderDynamicScreen(Context context, String screenId) {
+        // Use short cache for dynamic content
+        return FlexUI.renderWithConfig(context, screenId, dynamicConfig);
+    }
+}</code></pre>
+
+                    <h3>Memory Management</h3>
+                    <pre><code class="language-java">public class CacheManager {
+    
+    public void onLowMemory() {
+        // Clear memory cache but keep disk cache
+        FlexUI.clearMemoryCache();
+    }
+    
+    public void onTrimMemory(int level) {
+        if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
+            FlexUI.clearMemoryCache();
+        }
+    }
+    
+    public void onUserLogout() {
+        // Clear all user-specific cache
+        FlexUI.clearCache();
+    }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Cache Analytics</h2>
+                    
+                    <h3>Cache Hit Metrics</h3>
+                    <pre><code class="language-java">// Track cache performance
+FlexUI.setCacheMetricsListener(new CacheMetricsListener() {
+    @Override
+    public void onCacheHit(String screenId, long loadTime) {
+        Analytics.track("flexui_cache_hit", Map.of(
+            "screen_id", screenId,
+            "load_time_ms", loadTime
+        ));
+    }
+    
+    @Override
+    public void onCacheMiss(String screenId, long networkTime) {
+        Analytics.track("flexui_cache_miss", Map.of(
+            "screen_id", screenId,
+            "network_time_ms", networkTime
+        ));
+    }
+    
+    @Override
+    public void onCacheEvicted(String screenId, String reason) {
+        Analytics.track("flexui_cache_evicted", Map.of(
+            "screen_id", screenId,
+            "reason", reason
+        ));
+    }
+});</code></pre>
+
+                    <h3>Cache Statistics</h3>
+                    <pre><code class="language-java">// Get cache statistics
+CacheStats stats = FlexUI.getCacheStats();
+
+Log.i("Cache", "Hit rate: " + stats.getHitRate());
+Log.i("Cache", "Memory usage: " + stats.getMemoryUsage());
+Log.i("Cache", "Disk usage: " + stats.getDiskUsage());
+Log.i("Cache", "Total requests: " + stats.getTotalRequests());</code></pre>
+                </section>
+
+                <section>
+                    <h2>Offline Support</h2>
+                    
+                    <h3>Offline-First Strategy</h3>
+                    <pre><code class="language-java">public class OfflineFlexUIManager {
+    
+    public static View renderWithOfflineSupport(Context context, String screenId, 
+            Map<String, Object> data) {
+        
+        if (isNetworkAvailable(context)) {
+            // Online: use NETWORK_FIRST for fresh content
+            FlexConfig config = new FlexConfig.Builder(BASE_URL)
+                .cachePolicy(CachePolicy.NETWORK_FIRST)
+                .cacheTtlMinutes(60)
+                .build();
+                
+            return FlexUI.renderWithConfig(context, screenId, data, config);
+        } else {
+            // Offline: use CACHE_ONLY
+            FlexConfig config = new FlexConfig.Builder(BASE_URL)
+                .cachePolicy(CachePolicy.CACHE_ONLY)
+                .build();
+                
+            View view = FlexUI.renderWithConfig(context, screenId, data, config);
+            
+            if (view == null) {
+                // No cache available, show offline screen
+                return createOfflineScreen(context);
+            }
+            
+            return view;
+        }
+    }
+}</code></pre>
+
+                    <h3>Background Sync</h3>
+                    <pre><code class="language-java">public class BackgroundSync {
+    
+    public static void syncCriticalContent(Context context) {
+        if (!isNetworkAvailable(context)) return;
+        
+        String[] criticalScreens = {"home", "profile", "settings"};
+        
+        // Use WorkManager for reliable background sync
+        WorkRequest syncWork = new OneTimeWorkRequest.Builder(CacheSyncWorker.class)
+            .setInputData(new Data.Builder()
+                .putStringArray("screens", criticalScreens)
+                .build())
+            .setConstraints(new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build())
+            .build();
+            
+        WorkManager.getInstance(context).enqueue(syncWork);
+    }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Best Practices</h2>
+                    
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Cache Policy Selection</div>
+                            <ul>
+                                <li>Use <code>CACHE_FIRST</code> for static content and good performance</li>
+                                <li>Use <code>NETWORK_FIRST</code> for dynamic content that changes often</li>
+                                <li>Use <code>CACHE_ONLY</code> for offline mode or debugging</li>
+                                <li>Use <code>NETWORK_ONLY</code> for development and testing</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">TTL Guidelines</div>
+                            <ul>
+                                <li>Start with longer TTL and decrease if needed</li>
+                                <li>Consider content update frequency</li>
+                                <li>Account for user expectations</li>
+                                <li>Monitor cache hit rates</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Cache Invalidation</div>
+                            <ul>
+                                <li>Clear cache on user logout</li>
+                                <li>Refresh on app version updates</li>
+                                <li>Implement server-side cache invalidation</li>
+                                <li>Handle low memory conditions</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Monitoring</div>
+                            <ul>
+                                <li>Track cache hit/miss rates</li>
+                                <li>Monitor cache size and memory usage</li>
+                                <li>Measure performance improvements</li>
+                                <li>Alert on high cache miss rates</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Debugging Cache Issues</h2>
+                    
+                    <h3>Enable Debug Logging</h3>
+                    <pre><code class="language-java">FlexConfig config = new FlexConfig.Builder("https://api.example.com")
+    .enableDebugLogging(true)
+    .build();
+
+// This will log cache hits, misses, and network requests</code></pre>
+
+                    <h3>Common Issues</h3>
+                    <div class="alert warning">
+                        <p><strong>Stale Content:</strong> If users are seeing outdated content, check your TTL settings and consider using NETWORK_FIRST policy for that content type.</p>
+                    </div>
+                    
+                    <div class="alert error">
+                        <p><strong>High Memory Usage:</strong> If cache is consuming too much memory, implement proper cache size limits and clear cache on low memory warnings.</p>
+                    </div>
+                    
+                    <div class="alert info">
+                        <p><strong>Poor Offline Experience:</strong> Preload critical content and implement proper fallback screens for cache misses in offline mode.</p>
+                    </div>
+
+                    <h3>Cache Inspection</h3>
+                    <pre><code class="language-java">// Debug cache contents (development only)
+if (BuildConfig.DEBUG) {
+    CacheDebugInfo debugInfo = FlexUI.getCacheDebugInfo();
+    
+    for (String screenId : debugInfo.getCachedScreens()) {
+        CacheEntry entry = debugInfo.getCacheEntry(screenId);
+        Log.d("Cache", String.format("%s: cached=%s, ttl=%d, size=%d",
+            screenId,
+            entry.isValid(),
+            entry.getTtlRemaining(),
+            entry.getSize()));
+    }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Next Steps</h2>
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title"><a href="api-reference.html">API Reference</a></div>
+                            <div class="card-description">
+                                Complete reference for cache-related classes and methods.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title"><a href="migration.html">Migration Guide</a></div>
+                            <div class="card-description">
+                                Learn how to migrate existing apps to use FlexUI's caching system.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

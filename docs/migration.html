@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migration Guide - FlexUI Documentation</title>
+    <meta name="description" content="Learn how to migrate existing Android layouts to FlexUI's server-driven UI system.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+</head>
+<body>
+    <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+    
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">FlexUI</a>
+                <div class="sidebar-subtitle">Server-Driven Native UI</div>
+            </div>
+            
+            <div class="nav">
+                <ul>
+                    <li><a href="index.html">Overview</a></li>
+                    <li><a href="getting-started.html">Getting Started</a></li>
+                    <li><a href="components.html">Components</a></li>
+                    <li><a href="theming.html">Theming</a></li>
+                    <li><a href="custom-components.html">Custom Components</a></li>
+                    <li><a href="actions.html">Actions</a></li>
+                    <li><a href="caching.html">Caching</a></li>
+                    <li><a href="api-reference.html">API Reference</a></li>
+                    <li><a href="migration.html">Migration Guide</a></li>
+                </ul>
+            </div>
+            
+            <div class="github-link">
+                <a href="https://github.com/venkatesh3007/flexui" class="github-button" target="_blank">
+                    View on GitHub
+                </a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <div class="content">
+                <h1>Migration Guide</h1>
+                <p>Learn how to migrate existing Android layouts to FlexUI's server-driven approach. This guide provides step-by-step examples for common migration scenarios.</p>
+
+                <section>
+                    <h2>Migration Strategy</h2>
+                    
+                    <h3>Incremental Migration</h3>
+                    <p>The best approach is to migrate incrementally, one screen at a time:</p>
+                    
+                    <ol>
+                        <li><strong>Start Small:</strong> Begin with simple, static screens</li>
+                        <li><strong>Learn Patterns:</strong> Understand FlexUI component mappings</li>
+                        <li><strong>Build Infrastructure:</strong> Set up server endpoints and caching</li>
+                        <li><strong>Migrate Complex:</strong> Move dynamic screens with actions</li>
+                        <li><strong>Custom Components:</strong> Implement custom components for special cases</li>
+                    </ol>
+
+                    <div class="alert info">
+                        <p><strong>Hybrid Approach:</strong> FlexUI can coexist with existing layouts. You can migrate screens gradually without affecting the entire app.</p>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Basic Layout Migration</h2>
+                    
+                    <h3>Simple Linear Layout</h3>
+                    <p>Converting a basic vertical layout with text and buttons.</p>
+
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">OLD: XML Layout</div>
+                            <pre><code class="language-xml">&lt;!-- layout/welcome_screen.xml --&gt;
+&lt;LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#FFFFFF"&gt;
+    
+    &lt;TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome to MyApp!"
+        android:textSize="24sp"
+        android:textColor="#FF6B00"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" /&gt;
+    
+    &lt;TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Get started with our amazing features"
+        android:textSize="16sp"
+        android:textColor="#333333"
+        android:layout_marginBottom="32dp" /&gt;
+    
+    &lt;Button
+        android:id="@+id/btn_get_started"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Get Started"
+        android:textColor="#FFFFFF"
+        android:background="#FF6B00"
+        android:padding="16dp" /&gt;
+        
+&lt;/LinearLayout&gt;</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">NEW: FlexUI JSON</div>
+                            <pre><code class="language-json">{
+  "version": "1.0",
+  "theme": {
+    "colors": {
+      "primary": "#FF6B00",
+      "background": "#FFFFFF", 
+      "text": "#333333"
+    },
+    "spacing": {
+      "md": 16,
+      "lg": 24,
+      "xl": 32
+    }
+  },
+  "root": {
+    "type": "column",
+    "props": {
+      "padding": "{{spacing.lg}}",
+      "backgroundColor": "{{colors.background}}",
+      "children": [
+        {
+          "type": "text",
+          "props": {
+            "text": "Welcome to MyApp!",
+            "textSize": 24,
+            "textColor": "{{colors.primary}}",
+            "fontWeight": "bold",
+            "marginBottom": "{{spacing.md}}"
+          }
+        },
+        {
+          "type": "text", 
+          "props": {
+            "text": "Get started with our amazing features",
+            "textSize": 16,
+            "textColor": "{{colors.text}}",
+            "marginBottom": "{{spacing.xl}}"
+          }
+        },
+        {
+          "type": "button",
+          "props": {
+            "text": "Get Started",
+            "backgroundColor": "{{colors.primary}}",
+            "textColor": "#FFFFFF",
+            "padding": "{{spacing.md}}",
+            "width": "match_parent",
+            "action": {
+              "type": "navigate",
+              "url": "/onboarding"
+            }
+          }
+        }
+      ]
+    }
+  }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>Activity Code Changes</h3>
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">OLD: Activity with XML</div>
+                            <pre><code class="language-java">public class WelcomeActivity extends AppCompatActivity {
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.welcome_screen);
+        
+        Button getStartedBtn = findViewById(R.id.btn_get_started);
+        getStartedBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(WelcomeActivity.this, OnboardingActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+}</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">NEW: Activity with FlexUI</div>
+                            <pre><code class="language-java">public class WelcomeActivity extends AppCompatActivity {
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        // Register navigation handler (typically done once in Application)
+        FlexUI.onAction("navigate", new FlexActionHandler() {
+            @Override
+            public void handle(FlexAction action) {
+                String url = action.getString("url");
+                if ("/onboarding".equals(url)) {
+                    Intent intent = new Intent(WelcomeActivity.this, OnboardingActivity.class);
+                    startActivity(intent);
+                }
+            }
+        });
+        
+        // Render the screen
+        View welcomeView = FlexUI.render(this, "welcome_screen");
+        if (welcomeView != null) {
+            setContentView(welcomeView);
+        } else {
+            // Fallback to XML layout
+            setContentView(R.layout.welcome_screen);
+        }
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Data-Driven Content</h2>
+                    
+                    <h3>User Profile Screen</h3>
+                    <p>Converting a profile screen that displays user data.</p>
+
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">OLD: Programmatic Views</div>
+                            <pre><code class="language-java">public class ProfileActivity extends AppCompatActivity {
+    
+    private User user;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.profile_screen);
+        
+        user = getCurrentUser();
+        
+        // Update views with user data
+        TextView nameView = findViewById(R.id.tv_name);
+        TextView emailView = findViewById(R.id.tv_email);
+        TextView pointsView = findViewById(R.id.tv_points);
+        ImageView avatarView = findViewById(R.id.iv_avatar);
+        
+        nameView.setText(user.getName());
+        emailView.setText(user.getEmail());
+        pointsView.setText(String.valueOf(user.getPoints()) + " points");
+        
+        Glide.with(this)
+            .load(user.getAvatarUrl())
+            .into(avatarView);
+    }
+}</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">NEW: FlexUI with Data</div>
+                            <pre><code class="language-java">public class ProfileActivity extends AppCompatActivity {
+    
+    private User user;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        user = getCurrentUser();
+        
+        // Prepare data for FlexUI
+        Map&lt;String, Object&gt; data = new HashMap&lt;&gt;();
+        data.put("name", user.getName());
+        data.put("email", user.getEmail());
+        data.put("points", user.getPoints());
+        data.put("avatarUrl", user.getAvatarUrl());
+        data.put("memberSince", user.getMemberSince());
+        data.put("tier", user.getTier());
+        
+        // Render profile screen with data
+        View profileView = FlexUI.render(this, "user_profile", data);
+        if (profileView != null) {
+            setContentView(profileView);
+        } else {
+            // Fallback to existing implementation
+            setContentView(R.layout.profile_screen);
+            setupProfileViews();
+        }
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>JSON Configuration with Data</h3>
+                    <pre><code class="language-json">{
+  "version": "1.0",
+  "root": {
+    "type": "column",
+    "props": {
+      "padding": 24,
+      "children": [
+        {
+          "type": "row",
+          "props": {
+            "crossAxisAlignment": "center",
+            "marginBottom": 24,
+            "children": [
+              {
+                "type": "image",
+                "props": {
+                  "src": "{{data.avatarUrl}}",
+                  "width": 80,
+                  "height": 80,
+                  "scaleType": "centerCrop",
+                  "cornerRadius": 40
+                }
+              },
+              {
+                "type": "column",
+                "props": {
+                  "marginLeft": 16,
+                  "flex": 1,
+                  "children": [
+                    {
+                      "type": "text",
+                      "props": {
+                        "text": "{{data.name}}",
+                        "textSize": 20,
+                        "fontWeight": "bold",
+                        "textColor": "#333333"
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "props": {
+                        "text": "{{data.email}}",
+                        "textSize": 14,
+                        "textColor": "#666666"
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "props": {
+                        "text": "{{data.tier}} Member since {{data.memberSince}}",
+                        "textSize": 12,
+                        "textColor": "#999999"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "card",
+          "props": {
+            "padding": 16,
+            "elevation": 2,
+            "child": {
+              "type": "row",
+              "props": {
+                "mainAxisAlignment": "spaceBetween",
+                "children": [
+                  {
+                    "type": "text",
+                    "props": {
+                      "text": "Reward Points",
+                      "textSize": 16,
+                      "textColor": "#333333"
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "props": {
+                      "text": "{{data.points}} points",
+                      "textSize": 16,
+                      "fontWeight": "bold",
+                      "textColor": "#FF6B00"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>RecyclerView Migration</h2>
+                    
+                    <h3>List of Items</h3>
+                    <p>Converting RecyclerView with adapter to FlexUI list component.</p>
+
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">OLD: RecyclerView Adapter</div>
+                            <pre><code class="language-java">public class ProductAdapter extends RecyclerView.Adapter&lt;ProductAdapter.ViewHolder&gt; {
+    
+    private List&lt;Product&gt; products;
+    
+    public ProductAdapter(List&lt;Product&gt; products) {
+        this.products = products;
+    }
+    
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+            .inflate(R.layout.item_product, parent, false);
+        return new ViewHolder(view);
+    }
+    
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        Product product = products.get(position);
+        
+        holder.nameView.setText(product.getName());
+        holder.priceView.setText("$" + product.getPrice());
+        holder.ratingView.setText(String.valueOf(product.getRating()));
+        
+        Glide.with(holder.itemView.getContext())
+            .load(product.getImageUrl())
+            .into(holder.imageView);
+            
+        holder.itemView.setOnClickListener(v -> {
+            // Navigate to product details
+            Intent intent = new Intent(v.getContext(), ProductDetailsActivity.class);
+            intent.putExtra("productId", product.getId());
+            v.getContext().startActivity(intent);
+        });
+    }
+    
+    @Override
+    public int getItemCount() {
+        return products.size();
+    }
+    
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView nameView, priceView, ratingView;
+        ImageView imageView;
+        
+        ViewHolder(View itemView) {
+            super(itemView);
+            nameView = itemView.findViewById(R.id.tv_name);
+            priceView = itemView.findViewById(R.id.tv_price);
+            ratingView = itemView.findViewById(R.id.tv_rating);
+            imageView = itemView.findViewById(R.id.iv_product);
+        }
+    }
+}</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">NEW: FlexUI Data Preparation</div>
+                            <pre><code class="language-java">public class ProductListActivity extends AppCompatActivity {
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        // Register product click handler
+        FlexUI.onEvent("product_clicked", new FlexActionHandler() {
+            @Override
+            public void handle(FlexAction action) {
+                String productId = action.getString("productId");
+                Intent intent = new Intent(ProductListActivity.this, ProductDetailsActivity.class);
+                intent.putExtra("productId", productId);
+                startActivity(intent);
+            }
+        });
+        
+        // Get products and convert to FlexUI data
+        List&lt;Product&gt; products = getProducts();
+        List&lt;Map&lt;String, Object&gt;&gt; productData = new ArrayList&lt;&gt;();
+        
+        for (Product product : products) {
+            Map&lt;String, Object&gt; item = new HashMap&lt;&gt;();
+            item.put("id", product.getId());
+            item.put("name", product.getName());
+            item.put("price", product.getPrice());
+            item.put("rating", product.getRating());
+            item.put("imageUrl", product.getImageUrl());
+            productData.add(item);
+        }
+        
+        Map&lt;String, Object&gt; data = new HashMap&lt;&gt;();
+        data.put("products", productData);
+        
+        // Render product list
+        View listView = FlexUI.render(this, "product_list", data);
+        if (listView != null) {
+            setContentView(listView);
+        }
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>FlexUI List Configuration</h3>
+                    <pre><code class="language-json">{
+  "version": "1.0",
+  "root": {
+    "type": "list",
+    "props": {
+      "data": "{{data.products}}",
+      "spacing": 8,
+      "itemTemplate": {
+        "type": "card",
+        "props": {
+          "margin": 8,
+          "padding": 16,
+          "elevation": 2,
+          "onClick": {
+            "type": "callback",
+            "event": "product_clicked",
+            "data": {
+              "productId": "{{item.id}}"
+            }
+          },
+          "child": {
+            "type": "row",
+            "props": {
+              "crossAxisAlignment": "center",
+              "children": [
+                {
+                  "type": "image",
+                  "props": {
+                    "src": "{{item.imageUrl}}",
+                    "width": 80,
+                    "height": 80,
+                    "scaleType": "centerCrop",
+                    "cornerRadius": 8
+                  }
+                },
+                {
+                  "type": "column",
+                  "props": {
+                    "marginLeft": 16,
+                    "flex": 1,
+                    "children": [
+                      {
+                        "type": "text",
+                        "props": {
+                          "text": "{{item.name}}",
+                          "textSize": 16,
+                          "fontWeight": "bold",
+                          "textColor": "#333333"
+                        }
+                      },
+                      {
+                        "type": "text",
+                        "props": {
+                          "text": "${{item.price}}",
+                          "textSize": 14,
+                          "textColor": "#FF6B00"
+                        }
+                      },
+                      {
+                        "type": "text",
+                        "props": {
+                          "text": "Rating: {{item.rating}}/5",
+                          "textSize": 12,
+                          "textColor": "#666666"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Fragment Migration</h2>
+                    
+                    <h3>Settings Fragment</h3>
+                    <p>Converting a settings fragment with multiple options.</p>
+
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">OLD: Settings Fragment</div>
+                            <pre><code class="language-java">public class SettingsFragment extends Fragment {
+    
+    private Switch notificationSwitch;
+    private Switch darkModeSwitch;
+    private TextView versionText;
+    
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_settings, container, false);
+        
+        notificationSwitch = view.findViewById(R.id.switch_notifications);
+        darkModeSwitch = view.findViewById(R.id.switch_dark_mode);
+        versionText = view.findViewById(R.id.tv_version);
+        Button logoutBtn = view.findViewById(R.id.btn_logout);
+        
+        // Load current settings
+        SharedPreferences prefs = getActivity().getSharedPreferences("settings", Context.MODE_PRIVATE);
+        notificationSwitch.setChecked(prefs.getBoolean("notifications", true));
+        darkModeSwitch.setChecked(prefs.getBoolean("dark_mode", false));
+        versionText.setText("Version " + BuildConfig.VERSION_NAME);
+        
+        // Set up listeners
+        notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefs.edit().putBoolean("notifications", isChecked).apply();
+        });
+        
+        darkModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefs.edit().putBoolean("dark_mode", isChecked).apply();
+            // Apply dark mode
+        });
+        
+        logoutBtn.setOnClickListener(v -> {
+            // Handle logout
+            logout();
+        });
+        
+        return view;
+    }
+}</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">NEW: FlexUI Fragment</div>
+                            <pre><code class="language-java">public class SettingsFragment extends Fragment {
+    
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        
+        // Register settings handlers
+        FlexUI.onEvent("setting_changed", new FlexActionHandler() {
+            @Override
+            public void handle(FlexAction action) {
+                String setting = action.getString("setting");
+                boolean value = action.getBoolean("value", false);
+                
+                SharedPreferences prefs = getActivity().getSharedPreferences("settings", Context.MODE_PRIVATE);
+                prefs.edit().putBoolean(setting, value).apply();
+                
+                if ("dark_mode".equals(setting)) {
+                    // Apply dark mode
+                    applyDarkMode(value);
+                }
+            }
+        });
+        
+        FlexUI.onEvent("logout_clicked", new FlexActionHandler() {
+            @Override
+            public void handle(FlexAction action) {
+                logout();
+            }
+        });
+        
+        // Prepare settings data
+        SharedPreferences prefs = getActivity().getSharedPreferences("settings", Context.MODE_PRIVATE);
+        Map&lt;String, Object&gt; data = new HashMap&lt;&gt;();
+        data.put("notifications", prefs.getBoolean("notifications", true));
+        data.put("darkMode", prefs.getBoolean("dark_mode", false));
+        data.put("version", BuildConfig.VERSION_NAME);
+        
+        // Render settings screen
+        View settingsView = FlexUI.render(getContext(), "settings", data);
+        return settingsView != null ? settingsView : 
+               inflater.inflate(R.layout.fragment_settings, container, false);
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>Settings JSON Configuration</h3>
+                    <pre><code class="language-json">{
+  "version": "1.0",
+  "root": {
+    "type": "column",
+    "props": {
+      "padding": 16,
+      "children": [
+        {
+          "type": "text",
+          "props": {
+            "text": "Settings",
+            "textSize": 24,
+            "fontWeight": "bold",
+            "marginBottom": 24,
+            "textColor": "#333333"
+          }
+        },
+        {
+          "type": "card",
+          "props": {
+            "padding": 16,
+            "elevation": 2,
+            "marginBottom": 16,
+            "child": {
+              "type": "row",
+              "props": {
+                "mainAxisAlignment": "spaceBetween",
+                "crossAxisAlignment": "center",
+                "children": [
+                  {
+                    "type": "column",
+                    "props": {
+                      "children": [
+                        {
+                          "type": "text",
+                          "props": {
+                            "text": "Notifications",
+                            "textSize": 16,
+                            "textColor": "#333333"
+                          }
+                        },
+                        {
+                          "type": "text",
+                          "props": {
+                            "text": "Receive push notifications",
+                            "textSize": 12,
+                            "textColor": "#666666"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "toggle",
+                    "props": {
+                      "value": "{{data.notifications}}",
+                      "onChange": {
+                        "type": "callback",
+                        "event": "setting_changed",
+                        "data": {
+                          "setting": "notifications"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "type": "card",
+          "props": {
+            "padding": 16,
+            "elevation": 2,
+            "marginBottom": 16,
+            "child": {
+              "type": "row",
+              "props": {
+                "mainAxisAlignment": "spaceBetween",
+                "crossAxisAlignment": "center",
+                "children": [
+                  {
+                    "type": "column",
+                    "props": {
+                      "children": [
+                        {
+                          "type": "text",
+                          "props": {
+                            "text": "Dark Mode",
+                            "textSize": 16,
+                            "textColor": "#333333"
+                          }
+                        },
+                        {
+                          "type": "text",
+                          "props": {
+                            "text": "Use dark theme",
+                            "textSize": 12,
+                            "textColor": "#666666"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "toggle",
+                    "props": {
+                      "value": "{{data.darkMode}}",
+                      "onChange": {
+                        "type": "callback",
+                        "event": "setting_changed",
+                        "data": {
+                          "setting": "dark_mode"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "type": "spacer",
+          "props": {
+            "height": 32
+          }
+        },
+        {
+          "type": "text",
+          "props": {
+            "text": "Version {{data.version}}",
+            "textSize": 14,
+            "textAlign": "center",
+            "textColor": "#999999",
+            "marginBottom": 16
+          }
+        },
+        {
+          "type": "button",
+          "props": {
+            "text": "Logout",
+            "backgroundColor": "#F44336",
+            "textColor": "#FFFFFF",
+            "padding": 16,
+            "cornerRadius": 8,
+            "action": {
+              "type": "callback",
+              "event": "logout_clicked"
+            }
+          }
+        }
+      ]
+    }
+  }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Custom View Migration</h2>
+                    
+                    <h3>Migrating Custom Views</h3>
+                    <p>For custom views that can't be replaced with built-in components, create custom FlexUI components:</p>
+
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">OLD: Custom View Usage</div>
+                            <pre><code class="language-java">// In your layout
+CircularProgressView progressView = findViewById(R.id.progress_view);
+progressView.setProgress(75);
+progressView.setProgressColor(Color.parseColor("#FF6B00"));
+progressView.setBackgroundColor(Color.parseColor("#E0E0E0"));
+progressView.setStrokeWidth(8);</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">NEW: Custom FlexUI Component</div>
+                            <pre><code class="language-java">// Register custom component
+public class CircularProgressFactory implements FlexComponentFactory {
+    @Override
+    public View create(Context context, FlexProps props, FlexTheme theme) {
+        CircularProgressView progressView = new CircularProgressView(context);
+        
+        int progress = props.getInt("progress", 0);
+        String progressColor = props.getString("progressColor", theme.getColor("primary"));
+        String backgroundColor = props.getString("backgroundColor", "#E0E0E0");
+        int strokeWidth = props.getInt("strokeWidth", 8);
+        
+        progressView.setProgress(progress);
+        progressView.setProgressColor(Color.parseColor(progressColor));
+        progressView.setBackgroundColor(Color.parseColor(backgroundColor));
+        progressView.setStrokeWidth(strokeWidth);
+        
+        return progressView;
+    }
+}
+
+// Register during initialization
+FlexUI.registerComponent("circular_progress", new CircularProgressFactory());</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>Using Custom Component</h3>
+                    <pre><code class="language-json">{
+  "type": "circular_progress",
+  "props": {
+    "progress": 75,
+    "progressColor": "{{colors.primary}}",
+    "backgroundColor": "#E0E0E0",
+    "strokeWidth": 8,
+    "width": 120,
+    "height": 120
+  }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Theme Migration</h2>
+                    
+                    <h3>Converting styles.xml to FlexUI Theme</h3>
+
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">OLD: styles.xml</div>
+                            <pre><code class="language-xml">&lt;resources&gt;
+    &lt;style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar"&gt;
+        &lt;item name="colorPrimary"&gt;#FF6B00&lt;/item&gt;
+        &lt;item name="colorPrimaryDark"&gt;#E55A00&lt;/item&gt;
+        &lt;item name="colorAccent"&gt;#FF6B00&lt;/item&gt;
+    &lt;/style&gt;
+    
+    &lt;style name="HeadingText"&gt;
+        &lt;item name="android:textSize"&gt;24sp&lt;/item&gt;
+        &lt;item name="android:textColor"&gt;#333333&lt;/item&gt;
+        &lt;item name="android:fontFamily"&gt;sans-serif-medium&lt;/item&gt;
+    &lt;/style&gt;
+    
+    &lt;style name="BodyText"&gt;
+        &lt;item name="android:textSize"&gt;14sp&lt;/item&gt;
+        &lt;item name="android:textColor"&gt;#666666&lt;/item&gt;
+        &lt;item name="android:fontFamily"&gt;sans-serif&lt;/item&gt;
+    &lt;/style&gt;
+&lt;/resources&gt;</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">NEW: FlexUI Theme</div>
+                            <pre><code class="language-json">{
+  "theme": {
+    "colors": {
+      "primary": "#FF6B00",
+      "primaryDark": "#E55A00",
+      "accent": "#FF6B00",
+      "background": "#FFFFFF",
+      "text": "#333333",
+      "textSecondary": "#666666",
+      "surface": "#F8F9FA"
+    },
+    "typography": {
+      "headingFont": "sans-serif-medium",
+      "bodyFont": "sans-serif",
+      "headingSize": 24,
+      "bodySize": 14,
+      "captionSize": 12
+    },
+    "spacing": {
+      "xs": 4,
+      "sm": 8,
+      "md": 16,
+      "lg": 24,
+      "xl": 32
+    },
+    "borderRadius": {
+      "sm": 4,
+      "md": 8,
+      "lg": 16,
+      "full": 999
+    }
+  }
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Migration Checklist</h2>
+                    
+                    <h3>Pre-Migration Setup</h3>
+                    <div class="alert info">
+                        <p><strong>Before you start:</strong> Set up your server infrastructure and FlexUI configuration endpoints.</p>
+                    </div>
+                    
+                    <ul>
+                        <li>✅ Add FlexUI dependency to build.gradle</li>
+                        <li>✅ Initialize FlexUI in Application.onCreate()</li>
+                        <li>✅ Set up server endpoints for JSON configurations</li>
+                        <li>✅ Configure caching policy and TTL</li>
+                        <li>✅ Set up error handling and fallbacks</li>
+                        <li>✅ Register global action handlers (navigate, etc.)</li>
+                    </ul>
+
+                    <h3>Screen Migration Steps</h3>
+                    <p>For each screen you're migrating:</p>
+                    
+                    <ol>
+                        <li><strong>Analyze Layout:</strong> Identify components and their properties</li>
+                        <li><strong>Convert to JSON:</strong> Map XML/programmatic views to FlexUI components</li>
+                        <li><strong>Extract Data:</strong> Identify dynamic content and create data objects</li>
+                        <li><strong>Handle Actions:</strong> Convert click listeners to FlexUI actions</li>
+                        <li><strong>Test:</strong> Verify functionality with both cached and fresh data</li>
+                        <li><strong>Add Fallback:</strong> Keep original layout as fallback for errors</li>
+                        <li><strong>Deploy:</strong> Upload JSON configuration to server</li>
+                        <li><strong>Monitor:</strong> Track render success/failure rates</li>
+                    </ol>
+
+                    <h3>Post-Migration Cleanup</h3>
+                    <p>After successful migration:</p>
+                    
+                    <ul>
+                        <li>🧹 Remove unused XML layouts</li>
+                        <li>🧹 Remove unused view IDs and click listeners</li>
+                        <li>🧹 Update ProGuard rules if needed</li>
+                        <li>🧹 Remove hardcoded strings that are now server-controlled</li>
+                        <li>🧹 Update unit tests to mock FlexUI responses</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Common Challenges & Solutions</h2>
+                    
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Performance</div>
+                            <p><strong>Challenge:</strong> Network latency for first load</p>
+                            <p><strong>Solution:</strong> Use CACHE_FIRST policy and preload critical screens</p>
+                            <pre><code class="language-java">// Preload during app init
+FlexUI.renderAsync(context, "home_screen", data, callback);</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Offline Support</div>
+                            <p><strong>Challenge:</strong> App needs to work offline</p>
+                            <p><strong>Solution:</strong> Implement cache fallbacks and offline screens</p>
+                            <pre><code class="language-java">// Check network and use appropriate policy
+CachePolicy policy = isOnline() ? 
+    CachePolicy.NETWORK_FIRST : CachePolicy.CACHE_ONLY;</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Complex Views</div>
+                            <p><strong>Challenge:</strong> No direct FlexUI equivalent</p>
+                            <p><strong>Solution:</strong> Create custom FlexComponentFactory</p>
+                            <pre><code class="language-java">FlexUI.registerComponent("custom_chart", 
+    new ChartComponentFactory());</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">State Management</div>
+                            <p><strong>Challenge:</strong> Form state, user input</p>
+                            <p><strong>Solution:</strong> Use action callbacks to sync state</p>
+                            <pre><code class="language-java">FlexUI.onEvent("input_changed", action -> {
+    // Save input state
+    saveFormData(action.getData());
+});</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Best Practices</h2>
+                    
+                    <div class="alert success">
+                        <p><strong>Start Simple:</strong> Begin with read-only screens before tackling interactive forms.</p>
+                    </div>
+                    
+                    <ul>
+                        <li><strong>Incremental Migration:</strong> Migrate one screen at a time</li>
+                        <li><strong>Keep Fallbacks:</strong> Always have XML layouts as fallback</li>
+                        <li><strong>Version Control:</strong> Version your JSON configurations</li>
+                        <li><strong>Test Thoroughly:</strong> Test with different data scenarios</li>
+                        <li><strong>Monitor Performance:</strong> Track render times and cache hit rates</li>
+                        <li><strong>Document Mappings:</strong> Keep a reference of component mappings</li>
+                        <li><strong>Team Training:</strong> Ensure team understands FlexUI concepts</li>
+                    </ul>
+
+                    <div class="alert warning">
+                        <p><strong>Don't Rush:</strong> Take time to understand FlexUI patterns before migrating complex screens.</p>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Migration Timeline Example</h2>
+                    
+                    <h3>Week 1: Foundation</h3>
+                    <ul>
+                        <li>Set up FlexUI dependency and initialization</li>
+                        <li>Configure server endpoints and caching</li>
+                        <li>Register global action handlers</li>
+                        <li>Migrate 1-2 simple static screens</li>
+                    </ul>
+
+                    <h3>Week 2: Data-Driven Screens</h3>
+                    <ul>
+                        <li>Migrate user profile and dashboard screens</li>
+                        <li>Implement data passing patterns</li>
+                        <li>Set up theme configuration</li>
+                        <li>Add analytics for render performance</li>
+                    </ul>
+
+                    <h3>Week 3: Interactive Screens</h3>
+                    <ul>
+                        <li>Migrate forms and settings screens</li>
+                        <li>Implement action callbacks</li>
+                        <li>Add input validation</li>
+                        <li>Test offline scenarios</li>
+                    </ul>
+
+                    <h3>Week 4: Complex Components</h3>
+                    <ul>
+                        <li>Create custom components for special views</li>
+                        <li>Migrate list screens with RecyclerView</li>
+                        <li>Optimize performance and caching</li>
+                        <li>Final testing and deployment</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Next Steps</h2>
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title"><a href="getting-started.html">Start Your Migration</a></div>
+                            <div class="card-description">
+                                Begin with the getting started guide to set up FlexUI in your project.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title"><a href="components.html">Component Reference</a></div>
+                            <div class="card-description">
+                                Detailed reference for all FlexUI components and their XML equivalents.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title"><a href="custom-components.html">Custom Components</a></div>
+                            <div class="card-description">
+                                Learn how to create custom components for views that don't have direct equivalents.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

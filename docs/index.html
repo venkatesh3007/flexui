@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlexUI - Server-Driven Native UI SDK</title>
+    <meta name="description" content="Lightweight, server-driven UI SDK for Android and iOS. Zero dependencies, ~200KB, Java-compatible.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+</head>
+<body>
+    <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+    
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">FlexUI</a>
+                <div class="sidebar-subtitle">Server-Driven Native UI</div>
+            </div>
+            
+            <div class="nav">
+                <ul>
+                    <li><a href="index.html">Overview</a></li>
+                    <li><a href="getting-started.html">Getting Started</a></li>
+                    <li><a href="components.html">Components</a></li>
+                    <li><a href="theming.html">Theming</a></li>
+                    <li><a href="custom-components.html">Custom Components</a></li>
+                    <li><a href="actions.html">Actions</a></li>
+                    <li><a href="caching.html">Caching</a></li>
+                    <li><a href="api-reference.html">API Reference</a></li>
+                    <li><a href="migration.html">Migration Guide</a></li>
+                </ul>
+            </div>
+            
+            <div class="github-link">
+                <a href="https://github.com/venkatesh3007/flexui" class="github-button" target="_blank">
+                    View on GitHub
+                </a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <div class="content">
+                <section class="hero">
+                    <h1>FlexUI</h1>
+                    <p class="hero-subtitle">
+                        A lightweight, server-driven UI SDK that renders native components from JSON configurations. 
+                        Perfect for SDKs that need dynamic UI without forcing dependencies on their customers.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="getting-started.html" class="btn btn-primary">Get Started</a>
+                        <a href="https://github.com/venkatesh3007/flexui" class="btn btn-secondary" target="_blank">View Source</a>
+                    </div>
+                </section>
+
+                <section class="features">
+                    <div class="feature">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Zero Dependencies</h3>
+                        <p>No Compose, SwiftUI, or heavy frameworks. Pure View system on Android, UIKit on iOS.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">📱</div>
+                        <h3>Native Performance</h3>
+                        <p>Renders to fully native views: LinearLayout, TextView, UIStackView, UILabel, etc.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">🏗️</div>
+                        <h3>SDK-Friendly</h3>
+                        <p>Java-compatible API, tiny footprint (~200KB), drop-in LayoutInflater replacement.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">🎨</div>
+                        <h3>Dynamic Theming</h3>
+                        <p>Server-controlled colors, typography, spacing with template variable resolution.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">🔧</div>
+                        <h3>Extensible</h3>
+                        <p>Register custom components and actions. Integrates with existing SDKs seamlessly.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">🚀</div>
+                        <h3>Fast & Cached</h3>
+                        <p>Smart caching with multiple policies. Network-first, cache-first, or offline-only.</p>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Architecture Overview</h2>
+                    <div class="architecture-diagram">
+Server (JSON config)
+       │
+       ▼
+┌──────────────┐
+│  FlexUI SDK  │
+├──────────────┤
+│ Config Layer │ ← Fetches, caches, validates JSON configs
+├──────────────┤
+│ Schema Layer │ ← Parses JSON into typed component tree
+├──────────────┤
+│ Render Layer │ ← Maps component tree to native Views
+├──────────────┤
+│ Theme Layer  │ ← Applies colors, fonts, spacing
+├──────────────┤
+│ Action Layer │ ← Handles taps, navigations, callbacks
+├──────────────┤
+│ Component    │ ← Registry of built-in + custom components
+│ Registry     │
+└──────────────┘
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Quick Example</h2>
+                    <p>Transform this JSON configuration:</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "column",
+  "props": {
+    "padding": "{{spacing}}",
+    "children": [
+      {
+        "type": "text",
+        "props": {
+          "text": "Welcome to FlexUI",
+          "textSize": "{{headingSize}}",
+          "textColor": "{{primaryColor}}",
+          "fontWeight": "bold"
+        }
+      },
+      {
+        "type": "button",
+        "props": {
+          "text": "Get Started",
+          "backgroundColor": "{{primaryColor}}",
+          "textColor": "#FFFFFF",
+          "cornerRadius": "{{borderRadius}}",
+          "action": {
+            "type": "navigate",
+            "url": "/onboarding"
+          }
+        }
+      }
+    ]
+  }
+}</code></pre>
+
+                    <p>Into native Android views with just one line:</p>
+                    
+                    <pre><code class="language-java">// Initialize once
+FlexUI.init(context, "https://your-api.com/flexui");
+
+// Render anywhere
+View welcomeScreen = FlexUI.render(context, "welcome_screen");
+container.addView(welcomeScreen);</code></pre>
+                </section>
+
+                <section>
+                    <h2>Why FlexUI?</h2>
+                    
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">For SDK Developers</div>
+                            <div class="card-description">
+                                Ship dynamic UIs without forcing Compose/SwiftUI on your customers. 
+                                Java-compatible API that works everywhere.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">For Product Teams</div>
+                            <div class="card-description">
+                                Update UI layouts, themes, and flows server-side. 
+                                No app store approval needed for UI changes.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">For Performance</div>
+                            <div class="card-description">
+                                Tiny footprint (~200KB) with smart caching. 
+                                Native rendering means 60fps performance.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">For Integration</div>
+                            <div class="card-description">
+                                Drop-in replacement for LayoutInflater.inflate(). 
+                                Minimal changes to existing codebases.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Built-in Components</h2>
+                    <p>FlexUI comes with 14 essential components that map directly to native views:</p>
+                    
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>JSON Component</strong>
+                            <code>"container"</code>
+                            <code>"row"</code>
+                            <code>"column"</code>
+                            <code>"text"</code>
+                            <code>"image"</code>
+                            <code>"button"</code>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Native View</strong>
+                            <code>FrameLayout</code>
+                            <code>LinearLayout (horizontal)</code>
+                            <code>LinearLayout (vertical)</code>
+                            <code>TextView</code>
+                            <code>ImageView</code>
+                            <code>AppCompatButton</code>
+                        </div>
+                    </div>
+                    
+                    <p><a href="components.html">See all 14 components →</a></p>
+                </section>
+
+                <section>
+                    <h2>Platform Support</h2>
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Android <span class="badge">Ready</span></div>
+                            <ul>
+                                <li>Min SDK 21 (Android 5.0)</li>
+                                <li>Kotlin internals, Java-compatible API</li>
+                                <li>View system (no Compose dependency)</li>
+                                <li>Maven Central distribution</li>
+                                <li>~200KB footprint</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">iOS <span class="badge new">Coming Soon</span></div>
+                            <ul>
+                                <li>Min iOS 13.0</li>
+                                <li>Swift with Objective-C support</li>
+                                <li>UIKit (no SwiftUI dependency)</li>
+                                <li>Swift Package Manager + CocoaPods</li>
+                                <li>~150KB footprint</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Ready to Start?</h2>
+                    <div class="alert info">
+                        <p><strong>Get up and running in under 5 minutes.</strong> Add the dependency, initialize FlexUI, and start rendering dynamic UIs from your server.</p>
+                    </div>
+                    <p><a href="getting-started.html" class="btn btn-primary">Start Building →</a></p>
+                </section>
+            </div>
+        </main>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

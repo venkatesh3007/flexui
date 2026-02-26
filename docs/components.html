@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Components - FlexUI Documentation</title>
+    <meta name="description" content="All 14 built-in FlexUI components with JSON examples and native Android view mappings.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+</head>
+<body>
+    <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+    
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">FlexUI</a>
+                <div class="sidebar-subtitle">Server-Driven Native UI</div>
+            </div>
+            
+            <div class="nav">
+                <ul>
+                    <li><a href="index.html">Overview</a></li>
+                    <li><a href="getting-started.html">Getting Started</a></li>
+                    <li><a href="components.html">Components</a></li>
+                    <li><a href="theming.html">Theming</a></li>
+                    <li><a href="custom-components.html">Custom Components</a></li>
+                    <li><a href="actions.html">Actions</a></li>
+                    <li><a href="caching.html">Caching</a></li>
+                    <li><a href="api-reference.html">API Reference</a></li>
+                    <li><a href="migration.html">Migration Guide</a></li>
+                </ul>
+            </div>
+            
+            <div class="github-link">
+                <a href="https://github.com/venkatesh3007/flexui" class="github-button" target="_blank">
+                    View on GitHub
+                </a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <div class="content">
+                <h1>Components</h1>
+                <p>FlexUI comes with 14 essential components that map directly to native Android views. Each component is lightweight, performant, and fully customizable through JSON properties.</p>
+
+                <nav>
+                    <h2>Component Reference</h2>
+                    <ul>
+                        <li><a href="#container">Container</a> → FrameLayout</li>
+                        <li><a href="#row">Row</a> → LinearLayout (Horizontal)</li>
+                        <li><a href="#column">Column</a> → LinearLayout (Vertical)</li>
+                        <li><a href="#text">Text</a> → TextView</li>
+                        <li><a href="#image">Image</a> → ImageView</li>
+                        <li><a href="#button">Button</a> → AppCompatButton</li>
+                        <li><a href="#scroll">Scroll</a> → ScrollView</li>
+                        <li><a href="#list">List</a> → RecyclerView</li>
+                        <li><a href="#grid">Grid</a> → RecyclerView + GridLayoutManager</li>
+                        <li><a href="#card">Card</a> → CardView</li>
+                        <li><a href="#input">Input</a> → EditText</li>
+                        <li><a href="#toggle">Toggle</a> → SwitchCompat</li>
+                        <li><a href="#divider">Divider</a> → View</li>
+                        <li><a href="#spacer">Spacer</a> → Space</li>
+                    </ul>
+                </nav>
+
+                <!-- Container Component -->
+                <section id="container">
+                    <h2>Container</h2>
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>JSON Type</strong>
+                            <code>"container"</code>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Android View</strong>
+                            <code>FrameLayout</code>
+                        </div>
+                    </div>
+                    
+                    <p>A flexible container that can hold a single child and position it with margins, padding, and alignment.</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "container",
+  "props": {
+    "backgroundColor": "#F5F5F5",
+    "padding": 16,
+    "marginBottom": 8,
+    "cornerRadius": 8,
+    "elevation": 2,
+    "child": {
+      "type": "text",
+      "props": {
+        "text": "I'm inside a container",
+        "textAlign": "center"
+      }
+    }
+  }
+}</code></pre>
+                    
+                    <h4>Properties</h4>
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>child</td><td>Object</td><td>Single child component</td></tr>
+                        <tr><td>backgroundColor</td><td>String</td><td>Background color (hex or theme variable)</td></tr>
+                        <tr><td>padding</td><td>Int/String</td><td>Padding for all sides (dp or theme variable)</td></tr>
+                        <tr><td>margin</td><td>Int/String</td><td>Margin for all sides (dp or theme variable)</td></tr>
+                        <tr><td>cornerRadius</td><td>Int/String</td><td>Corner radius (dp or theme variable)</td></tr>
+                        <tr><td>elevation</td><td>Int</td><td>Shadow elevation (dp)</td></tr>
+                        <tr><td>width</td><td>String</td><td>"match_parent", "wrap_content", or dp value</td></tr>
+                        <tr><td>height</td><td>String</td><td>"match_parent", "wrap_content", or dp value</td></tr>
+                    </table>
+                </section>
+
+                <!-- Row Component -->
+                <section id="row">
+                    <h2>Row</h2>
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>JSON Type</strong>
+                            <code>"row"</code>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Android View</strong>
+                            <code>LinearLayout (horizontal)</code>
+                        </div>
+                    </div>
+                    
+                    <p>Arranges children horizontally in a row with optional spacing, alignment, and distribution.</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "row",
+  "props": {
+    "padding": 16,
+    "spacing": 8,
+    "mainAxisAlignment": "spaceBetween",
+    "crossAxisAlignment": "center",
+    "children": [
+      {
+        "type": "text",
+        "props": { "text": "Left", "flex": 1 }
+      },
+      {
+        "type": "text",
+        "props": { "text": "Center" }
+      },
+      {
+        "type": "text",
+        "props": { "text": "Right" }
+      }
+    ]
+  }
+}</code></pre>
+                    
+                    <h4>Properties</h4>
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>children</td><td>Array</td><td>Child components</td></tr>
+                        <tr><td>spacing</td><td>Int/String</td><td>Space between children (dp or theme variable)</td></tr>
+                        <tr><td>mainAxisAlignment</td><td>String</td><td>"start", "center", "end", "spaceBetween", "spaceAround", "spaceEvenly"</td></tr>
+                        <tr><td>crossAxisAlignment</td><td>String</td><td>"start", "center", "end", "stretch"</td></tr>
+                        <tr><td>wrap</td><td>Boolean</td><td>Whether to wrap children to next line</td></tr>
+                    </table>
+                </section>
+
+                <!-- Column Component -->
+                <section id="column">
+                    <h2>Column</h2>
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>JSON Type</strong>
+                            <code>"column"</code>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Android View</strong>
+                            <code>LinearLayout (vertical)</code>
+                        </div>
+                    </div>
+                    
+                    <p>Arranges children vertically in a column with optional spacing, alignment, and distribution.</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "column",
+  "props": {
+    "padding": 16,
+    "spacing": 12,
+    "crossAxisAlignment": "stretch",
+    "children": [
+      {
+        "type": "text",
+        "props": {
+          "text": "Header",
+          "textSize": 20,
+          "fontWeight": "bold"
+        }
+      },
+      {
+        "type": "text",
+        "props": {
+          "text": "Body content goes here.",
+          "textSize": 14
+        }
+      },
+      {
+        "type": "button",
+        "props": {
+          "text": "Action",
+          "marginTop": 8
+        }
+      }
+    ]
+  }
+}</code></pre>
+                    
+                    <h4>Properties</h4>
+                    <p>Same as Row, but arranges children vertically instead of horizontally.</p>
+                </section>
+
+                <!-- Text Component -->
+                <section id="text">
+                    <h2>Text</h2>
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>JSON Type</strong>
+                            <code>"text"</code>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Android View</strong>
+                            <code>TextView</code>
+                        </div>
+                    </div>
+                    
+                    <p>Displays text with full typography control, including fonts, colors, sizes, and styling.</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "text",
+  "props": {
+    "text": "Welcome to FlexUI!",
+    "textSize": 18,
+    "textColor": "{{colors.primary}}",
+    "fontWeight": "bold",
+    "textAlign": "center",
+    "maxLines": 2,
+    "ellipsize": "end",
+    "lineSpacing": 1.2
+  }
+}</code></pre>
+                    
+                    <h4>Properties</h4>
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>text</td><td>String</td><td>Text content (supports theme variables)</td></tr>
+                        <tr><td>textSize</td><td>Int/String</td><td>Text size (sp or theme variable)</td></tr>
+                        <tr><td>textColor</td><td>String</td><td>Text color (hex or theme variable)</td></tr>
+                        <tr><td>fontWeight</td><td>String</td><td>"normal", "bold"</td></tr>
+                        <tr><td>fontStyle</td><td>String</td><td>"normal", "italic"</td></tr>
+                        <tr><td>textAlign</td><td>String</td><td>"left", "center", "right"</td></tr>
+                        <tr><td>maxLines</td><td>Int</td><td>Maximum number of lines</td></tr>
+                        <tr><td>ellipsize</td><td>String</td><td>"start", "middle", "end"</td></tr>
+                        <tr><td>lineSpacing</td><td>Float</td><td>Line spacing multiplier</td></tr>
+                        <tr><td>letterSpacing</td><td>Float</td><td>Letter spacing (em)</td></tr>
+                    </table>
+                </section>
+
+                <!-- Image Component -->
+                <section id="image">
+                    <h2>Image</h2>
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>JSON Type</strong>
+                            <code>"image"</code>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Android View</strong>
+                            <code>ImageView</code>
+                        </div>
+                    </div>
+                    
+                    <p>Displays images from URLs or local resources with scaling, placeholders, and error handling.</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "image",
+  "props": {
+    "src": "https://example.com/image.jpg",
+    "width": 200,
+    "height": 150,
+    "scaleType": "centerCrop",
+    "cornerRadius": 8,
+    "placeholder": "{{colors.background}}",
+    "errorImage": "ic_error"
+  }
+}</code></pre>
+                    
+                    <h4>Properties</h4>
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>src</td><td>String</td><td>Image URL or local resource name</td></tr>
+                        <tr><td>width</td><td>Int/String</td><td>Image width (dp)</td></tr>
+                        <tr><td>height</td><td>Int/String</td><td>Image height (dp)</td></tr>
+                        <tr><td>scaleType</td><td>String</td><td>"center", "centerCrop", "centerInside", "fitXY", "fitStart", "fitCenter", "fitEnd"</td></tr>
+                        <tr><td>cornerRadius</td><td>Int/String</td><td>Corner radius (dp or theme variable)</td></tr>
+                        <tr><td>placeholder</td><td>String</td><td>Placeholder color while loading</td></tr>
+                        <tr><td>errorImage</td><td>String</td><td>Error image resource name</td></tr>
+                    </table>
+                </section>
+
+                <!-- Button Component -->
+                <section id="button">
+                    <h2>Button</h2>
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>JSON Type</strong>
+                            <code>"button"</code>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Android View</strong>
+                            <code>AppCompatButton</code>
+                        </div>
+                    </div>
+                    
+                    <p>Interactive button with customizable appearance, text, and actions.</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "button",
+  "props": {
+    "text": "Get Started",
+    "backgroundColor": "{{colors.primary}}",
+    "textColor": "#FFFFFF",
+    "textSize": 16,
+    "fontWeight": "bold",
+    "padding": 16,
+    "cornerRadius": 8,
+    "elevation": 3,
+    "enabled": true,
+    "action": {
+      "type": "navigate",
+      "url": "/onboarding"
+    }
+  }
+}</code></pre>
+                    
+                    <h4>Properties</h4>
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>text</td><td>String</td><td>Button text</td></tr>
+                        <tr><td>backgroundColor</td><td>String</td><td>Background color (hex or theme variable)</td></tr>
+                        <tr><td>textColor</td><td>String</td><td>Text color (hex or theme variable)</td></tr>
+                        <tr><td>borderColor</td><td>String</td><td>Border color</td></tr>
+                        <tr><td>borderWidth</td><td>Int</td><td>Border width (dp)</td></tr>
+                        <tr><td>enabled</td><td>Boolean</td><td>Whether button is enabled</td></tr>
+                        <tr><td>action</td><td>Object</td><td>Action to perform on click</td></tr>
+                    </table>
+                </section>
+
+                <!-- Scroll Component -->
+                <section id="scroll">
+                    <h2>Scroll</h2>
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>JSON Type</strong>
+                            <code>"scroll"</code>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Android View</strong>
+                            <code>ScrollView</code>
+                        </div>
+                    </div>
+                    
+                    <p>Scrollable container for content that may exceed screen bounds.</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "scroll",
+  "props": {
+    "direction": "vertical",
+    "showScrollbar": true,
+    "child": {
+      "type": "column",
+      "props": {
+        "children": [
+          // Long list of items that need scrolling
+        ]
+      }
+    }
+  }
+}</code></pre>
+                    
+                    <h4>Properties</h4>
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>child</td><td>Object</td><td>Single child component</td></tr>
+                        <tr><td>direction</td><td>String</td><td>"vertical" or "horizontal"</td></tr>
+                        <tr><td>showScrollbar</td><td>Boolean</td><td>Whether to show scrollbars</td></tr>
+                        <tr><td>scrollEnabled</td><td>Boolean</td><td>Whether scrolling is enabled</td></tr>
+                    </table>
+                </section>
+
+                <!-- List Component -->
+                <section id="list">
+                    <h2>List</h2>
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>JSON Type</strong>
+                            <code>"list"</code>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Android View</strong>
+                            <code>RecyclerView</code>
+                        </div>
+                    </div>
+                    
+                    <p>Efficient scrolling list that recycles views for performance with large datasets.</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "list",
+  "props": {
+    "data": ["Item 1", "Item 2", "Item 3"],
+    "itemTemplate": {
+      "type": "container",
+      "props": {
+        "padding": 16,
+        "child": {
+          "type": "text",
+          "props": {
+            "text": "{{item}}",
+            "textSize": 16
+          }
+        }
+      }
+    },
+    "spacing": 8,
+    "direction": "vertical"
+  }
+}</code></pre>
+                    
+                    <h4>Properties</h4>
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>data</td><td>Array</td><td>Array of data items</td></tr>
+                        <tr><td>itemTemplate</td><td>Object</td><td>Template for each item</td></tr>
+                        <tr><td>spacing</td><td>Int/String</td><td>Space between items</td></tr>
+                        <tr><td>direction</td><td>String</td><td>"vertical" or "horizontal"</td></tr>
+                        <tr><td>scrollEnabled</td><td>Boolean</td><td>Whether scrolling is enabled</td></tr>
+                    </table>
+                </section>
+
+                <!-- Grid Component -->
+                <section id="grid">
+                    <h2>Grid</h2>
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>JSON Type</strong>
+                            <code>"grid"</code>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Android View</strong>
+                            <code>RecyclerView + GridLayoutManager</code>
+                        </div>
+                    </div>
+                    
+                    <p>Grid layout for arranging items in rows and columns.</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "grid",
+  "props": {
+    "data": [1, 2, 3, 4, 5, 6],
+    "columns": 2,
+    "spacing": 8,
+    "itemTemplate": {
+      "type": "card",
+      "props": {
+        "padding": 16,
+        "child": {
+          "type": "text",
+          "props": {
+            "text": "Item {{item}}",
+            "textAlign": "center"
+          }
+        }
+      }
+    }
+  }
+}</code></pre>
+                    
+                    <h4>Properties</h4>
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>data</td><td>Array</td><td>Array of data items</td></tr>
+                        <tr><td>itemTemplate</td><td>Object</td><td>Template for each item</td></tr>
+                        <tr><td>columns</td><td>Int</td><td>Number of columns</td></tr>
+                        <tr><td>spacing</td><td>Int/String</td><td>Space between items</td></tr>
+                        <tr><td>aspectRatio</td><td>Float</td><td>Item aspect ratio (width/height)</td></tr>
+                    </table>
+                </section>
+
+                <!-- Card Component -->
+                <section id="card">
+                    <h2>Card</h2>
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>JSON Type</strong>
+                            <code>"card"</code>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Android View</strong>
+                            <code>CardView</code>
+                        </div>
+                    </div>
+                    
+                    <p>Material Design card with elevation, rounded corners, and shadow.</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "card",
+  "props": {
+    "elevation": 4,
+    "cornerRadius": 12,
+    "backgroundColor": "#FFFFFF",
+    "padding": 16,
+    "margin": 8,
+    "child": {
+      "type": "column",
+      "props": {
+        "children": [
+          {
+            "type": "text",
+            "props": {
+              "text": "Card Title",
+              "textSize": 18,
+              "fontWeight": "bold"
+            }
+          },
+          {
+            "type": "text",
+            "props": {
+              "text": "Card content goes here.",
+              "marginTop": 8
+            }
+          }
+        ]
+      }
+    }
+  }
+}</code></pre>
+                    
+                    <h4>Properties</h4>
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>child</td><td>Object</td><td>Single child component</td></tr>
+                        <tr><td>elevation</td><td>Int</td><td>Shadow elevation (dp)</td></tr>
+                        <tr><td>cornerRadius</td><td>Int/String</td><td>Corner radius (dp or theme variable)</td></tr>
+                        <tr><td>backgroundColor</td><td>String</td><td>Background color</td></tr>
+                        <tr><td>strokeColor</td><td>String</td><td>Stroke color</td></tr>
+                        <tr><td>strokeWidth</td><td>Int</td><td>Stroke width (dp)</td></tr>
+                    </table>
+                </section>
+
+                <!-- Input Component -->
+                <section id="input">
+                    <h2>Input</h2>
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>JSON Type</strong>
+                            <code>"input"</code>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Android View</strong>
+                            <code>EditText</code>
+                        </div>
+                    </div>
+                    
+                    <p>Text input field with validation, formatting, and various input types.</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "input",
+  "props": {
+    "placeholder": "Enter your email",
+    "inputType": "email",
+    "required": true,
+    "maxLength": 100,
+    "backgroundColor": "#F8F9FA",
+    "textColor": "#333333",
+    "padding": 12,
+    "cornerRadius": 6,
+    "borderColor": "#E0E0E0",
+    "borderWidth": 1,
+    "action": {
+      "type": "callback",
+      "event": "text_changed",
+      "data": { "field": "email" }
+    }
+  }
+}</code></pre>
+                    
+                    <h4>Properties</h4>
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>placeholder</td><td>String</td><td>Placeholder text</td></tr>
+                        <tr><td>value</td><td>String</td><td>Initial text value</td></tr>
+                        <tr><td>inputType</td><td>String</td><td>"text", "email", "password", "number", "phone", "url"</td></tr>
+                        <tr><td>maxLength</td><td>Int</td><td>Maximum character length</td></tr>
+                        <tr><td>minLength</td><td>Int</td><td>Minimum character length</td></tr>
+                        <tr><td>required</td><td>Boolean</td><td>Whether field is required</td></tr>
+                        <tr><td>multiline</td><td>Boolean</td><td>Whether to allow multiple lines</td></tr>
+                        <tr><td>maxLines</td><td>Int</td><td>Maximum number of lines (multiline mode)</td></tr>
+                    </table>
+                </section>
+
+                <!-- Toggle Component -->
+                <section id="toggle">
+                    <h2>Toggle</h2>
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>JSON Type</strong>
+                            <code>"toggle"</code>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Android View</strong>
+                            <code>SwitchCompat</code>
+                        </div>
+                    </div>
+                    
+                    <p>On/off switch for boolean settings and preferences.</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "toggle",
+  "props": {
+    "value": false,
+    "enabled": true,
+    "trackColor": "{{colors.primary}}",
+    "thumbColor": "#FFFFFF",
+    "action": {
+      "type": "callback",
+      "event": "toggle_changed",
+      "data": { "setting": "notifications" }
+    }
+  }
+}</code></pre>
+                    
+                    <h4>Properties</h4>
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>value</td><td>Boolean</td><td>Initial toggle state</td></tr>
+                        <tr><td>enabled</td><td>Boolean</td><td>Whether toggle is enabled</td></tr>
+                        <tr><td>trackColor</td><td>String</td><td>Track color when on</td></tr>
+                        <tr><td>thumbColor</td><td>String</td><td>Thumb color</td></tr>
+                        <tr><td>action</td><td>Object</td><td>Action to perform on state change</td></tr>
+                    </table>
+                </section>
+
+                <!-- Divider Component -->
+                <section id="divider">
+                    <h2>Divider</h2>
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>JSON Type</strong>
+                            <code>"divider"</code>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Android View</strong>
+                            <code>View</code>
+                        </div>
+                    </div>
+                    
+                    <p>Visual separator line between content sections.</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "divider",
+  "props": {
+    "orientation": "horizontal",
+    "thickness": 1,
+    "color": "#E0E0E0",
+    "margin": 16
+  }
+}</code></pre>
+                    
+                    <h4>Properties</h4>
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>orientation</td><td>String</td><td>"horizontal" or "vertical"</td></tr>
+                        <tr><td>thickness</td><td>Int</td><td>Line thickness (dp)</td></tr>
+                        <tr><td>color</td><td>String</td><td>Divider color</td></tr>
+                        <tr><td>length</td><td>Int/String</td><td>Length (dp) or "match_parent"</td></tr>
+                    </table>
+                </section>
+
+                <!-- Spacer Component -->
+                <section id="spacer">
+                    <h2>Spacer</h2>
+                    <div class="component-mapping">
+                        <div class="component-json">
+                            <strong>JSON Type</strong>
+                            <code>"spacer"</code>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="component-native">
+                            <strong>Android View</strong>
+                            <code>Space</code>
+                        </div>
+                    </div>
+                    
+                    <p>Invisible component for adding space between other components.</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "spacer",
+  "props": {
+    "width": 16,
+    "height": 24
+  }
+}</code></pre>
+                    
+                    <h4>Properties</h4>
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>width</td><td>Int/String</td><td>Width (dp or theme variable)</td></tr>
+                        <tr><td>height</td><td>Int/String</td><td>Height (dp or theme variable)</td></tr>
+                    </table>
+                </section>
+
+                <section>
+                    <h2>Common Properties</h2>
+                    <p>All components support these layout properties:</p>
+                    
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>id</td><td>String</td><td>Unique identifier for the component</td></tr>
+                        <tr><td>margin</td><td>Int/String</td><td>Margin for all sides</td></tr>
+                        <tr><td>marginTop</td><td>Int/String</td><td>Top margin</td></tr>
+                        <tr><td>marginBottom</td><td>Int/String</td><td>Bottom margin</td></tr>
+                        <tr><td>marginLeft</td><td>Int/String</td><td>Left margin</td></tr>
+                        <tr><td>marginRight</td><td>Int/String</td><td>Right margin</td></tr>
+                        <tr><td>padding</td><td>Int/String</td><td>Padding for all sides</td></tr>
+                        <tr><td>paddingTop</td><td>Int/String</td><td>Top padding</td></tr>
+                        <tr><td>paddingBottom</td><td>Int/String</td><td>Bottom padding</td></tr>
+                        <tr><td>paddingLeft</td><td>Int/String</td><td>Left padding</td></tr>
+                        <tr><td>paddingRight</td><td>Int/String</td><td>Right padding</td></tr>
+                        <tr><td>width</td><td>String</td><td>"match_parent", "wrap_content", or dp value</td></tr>
+                        <tr><td>height</td><td>String</td><td>"match_parent", "wrap_content", or dp value</td></tr>
+                        <tr><td>flex</td><td>Int</td><td>Flex weight (for Row/Column children)</td></tr>
+                        <tr><td>visibility</td><td>String</td><td>"visible", "invisible", "gone"</td></tr>
+                        <tr><td>onClick</td><td>Object</td><td>Action to perform when tapped</td></tr>
+                    </table>
+                </section>
+
+                <section>
+                    <h2>Next Steps</h2>
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title"><a href="theming.html">Learn About Theming</a></div>
+                            <div class="card-description">
+                                Understand how to use theme variables and customize colors, typography, and spacing.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title"><a href="custom-components.html">Build Custom Components</a></div>
+                            <div class="card-description">
+                                Register your own component types to extend FlexUI with custom views.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title"><a href="actions.html">Handle Actions</a></div>
+                            <div class="card-description">
+                                Learn how to respond to user interactions with the action system.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

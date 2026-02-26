@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theming - FlexUI Documentation</title>
+    <meta name="description" content="Learn about FlexUI's theming system: colors, typography, spacing, and variable resolution.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+</head>
+<body>
+    <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+    
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">FlexUI</a>
+                <div class="sidebar-subtitle">Server-Driven Native UI</div>
+            </div>
+            
+            <div class="nav">
+                <ul>
+                    <li><a href="index.html">Overview</a></li>
+                    <li><a href="getting-started.html">Getting Started</a></li>
+                    <li><a href="components.html">Components</a></li>
+                    <li><a href="theming.html">Theming</a></li>
+                    <li><a href="custom-components.html">Custom Components</a></li>
+                    <li><a href="actions.html">Actions</a></li>
+                    <li><a href="caching.html">Caching</a></li>
+                    <li><a href="api-reference.html">API Reference</a></li>
+                    <li><a href="migration.html">Migration Guide</a></li>
+                </ul>
+            </div>
+            
+            <div class="github-link">
+                <a href="https://github.com/venkatesh3007/flexui" class="github-button" target="_blank">
+                    View on GitHub
+                </a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <div class="content">
+                <h1>Theming</h1>
+                <p>FlexUI's theming system allows you to define consistent colors, typography, spacing, and other design tokens that can be referenced throughout your JSON configurations using template variables.</p>
+
+                <section>
+                    <h2>Theme Structure</h2>
+                    <p>A FlexUI theme consists of four main categories:</p>
+
+                    <pre><code class="language-json">{
+  "version": "1.0",
+  "theme": {
+    "colors": {
+      "primary": "#FF6B00",
+      "secondary": "#1A1A2E",
+      "background": "#FFFFFF",
+      "surface": "#F8F9FA",
+      "text": "#333333",
+      "textSecondary": "#666666",
+      "success": "#4CAF50",
+      "warning": "#FF9800",
+      "error": "#F44336",
+      "transparent": "#00000000"
+    },
+    "typography": {
+      "headingFont": "sans-serif-medium",
+      "bodyFont": "sans-serif",
+      "headingSize": 24,
+      "bodySize": 14,
+      "captionSize": 12,
+      "lineHeight": 1.4
+    },
+    "spacing": {
+      "xs": 4,
+      "sm": 8,
+      "md": 16,
+      "lg": 24,
+      "xl": 32,
+      "xxl": 48
+    },
+    "borderRadius": {
+      "none": 0,
+      "sm": 4,
+      "md": 8,
+      "lg": 16,
+      "xl": 24,
+      "full": 999
+    }
+  },
+  "root": {
+    // Your component tree here
+  }
+}</code></pre>
+
+                    <h3>Colors</h3>
+                    <p>Define your color palette using hex values or named colors. Colors can be referenced using <code>{{colors.colorName}}</code>:</p>
+                    
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Primary Colors</div>
+                            <ul>
+                                <li><code>primary</code> - Main brand color</li>
+                                <li><code>secondary</code> - Secondary accent color</li>
+                                <li><code>background</code> - Main background</li>
+                                <li><code>surface</code> - Card/surface background</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Text Colors</div>
+                            <ul>
+                                <li><code>text</code> - Primary text color</li>
+                                <li><code>textSecondary</code> - Secondary text</li>
+                                <li><code>textOnPrimary</code> - Text on primary color</li>
+                                <li><code>textOnSecondary</code> - Text on secondary color</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Status Colors</div>
+                            <ul>
+                                <li><code>success</code> - Success states</li>
+                                <li><code>warning</code> - Warning states</li>
+                                <li><code>error</code> - Error states</li>
+                                <li><code>info</code> - Informational states</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3>Typography</h3>
+                    <p>Define font families, sizes, and other text properties:</p>
+                    
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th><th>Example</th></tr>
+                        <tr><td>headingFont</td><td>String</td><td>Font family for headings</td><td>"sans-serif-medium"</td></tr>
+                        <tr><td>bodyFont</td><td>String</td><td>Font family for body text</td><td>"sans-serif"</td></tr>
+                        <tr><td>headingSize</td><td>Int</td><td>Default heading size (sp)</td><td>24</td></tr>
+                        <tr><td>bodySize</td><td>Int</td><td>Default body size (sp)</td><td>14</td></tr>
+                        <tr><td>captionSize</td><td>Int</td><td>Caption/small text size (sp)</td><td>12</td></tr>
+                        <tr><td>lineHeight</td><td>Float</td><td>Line height multiplier</td><td>1.4</td></tr>
+                        <tr><td>letterSpacing</td><td>Float</td><td>Letter spacing (em)</td><td>0.1</td></tr>
+                    </table>
+
+                    <h3>Spacing</h3>
+                    <p>Define consistent spacing values for margins, padding, and gaps:</p>
+                    
+                    <pre><code class="language-json">"spacing": {
+  "xs": 4,    // Extra small - 4dp
+  "sm": 8,    // Small - 8dp
+  "md": 16,   // Medium - 16dp (base unit)
+  "lg": 24,   // Large - 24dp
+  "xl": 32,   // Extra large - 32dp
+  "xxl": 48   // Extra extra large - 48dp
+}</code></pre>
+
+                    <h3>Border Radius</h3>
+                    <p>Define corner radius values for consistent rounded corners:</p>
+                    
+                    <pre><code class="language-json">"borderRadius": {
+  "none": 0,   // No rounding
+  "sm": 4,     // Small radius
+  "md": 8,     // Medium radius
+  "lg": 16,    // Large radius
+  "xl": 24,    // Extra large radius
+  "full": 999  // Fully rounded (pill shape)
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Variable Resolution</h2>
+                    <p>Reference theme values using double curly braces: <code>{{category.property}}</code></p>
+
+                    <h3>Basic Usage</h3>
+                    <pre><code class="language-json">{
+  "type": "button",
+  "props": {
+    "text": "Get Started",
+    "backgroundColor": "{{colors.primary}}",
+    "textColor": "{{colors.textOnPrimary}}",
+    "padding": "{{spacing.md}}",
+    "cornerRadius": "{{borderRadius.md}}"
+  }
+}</code></pre>
+
+                    <h3>Nested Properties</h3>
+                    <p>Access nested theme properties using dot notation:</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "text",
+  "props": {
+    "text": "Welcome!",
+    "textSize": "{{typography.headingSize}}",
+    "fontFamily": "{{typography.headingFont}}",
+    "textColor": "{{colors.text}}",
+    "lineSpacing": "{{typography.lineHeight}}"
+  }
+}</code></pre>
+
+                    <h3>Data Variables</h3>
+                    <p>Combine theme variables with data passed from your app:</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "text",
+  "props": {
+    "text": "Hello, {{data.userName}}!",
+    "textColor": "{{colors.primary}}",
+    "textSize": "{{typography.headingSize}}"
+  }
+}</code></pre>
+
+                    <div class="alert info">
+                        <p><strong>Resolution Order:</strong> Variables are resolved in this order: 1) Data variables, 2) Theme variables, 3) Left as literal text if no match found.</p>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Setting Default Themes</h2>
+                    
+                    <h3>Server-side Theme</h3>
+                    <p>Include theme configuration in your JSON response:</p>
+                    
+                    <pre><code class="language-json">{
+  "version": "1.0",
+  "theme": {
+    "colors": { /* your colors */ },
+    "typography": { /* your typography */ }
+  },
+  "root": { /* your components */ }
+}</code></pre>
+
+                    <h3>Client-side Default Theme</h3>
+                    <p>Set a default theme during FlexUI initialization:</p>
+                    
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Java</div>
+                            <pre><code class="language-java">// Create default theme
+FlexTheme defaultTheme = FlexTheme.getDefault();
+
+// Or create custom theme
+Map&lt;String, String&gt; colors = new HashMap&lt;&gt;();
+colors.put("primary", "#FF6B00");
+colors.put("background", "#FFFFFF");
+
+Map&lt;String, Integer&gt; spacing = new HashMap&lt;&gt;();
+spacing.put("md", 16);
+spacing.put("lg", 24);
+
+FlexTheme customTheme = new FlexTheme(colors, new HashMap&lt;&gt;(), spacing, new HashMap&lt;&gt;());
+
+// Initialize with theme
+FlexConfig config = new FlexConfig.Builder("https://api.com/flexui")
+    .defaultTheme(customTheme)
+    .build();
+    
+FlexUI.init(context, config);</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Kotlin</div>
+                            <pre><code class="language-kotlin">// Create default theme
+val defaultTheme = FlexTheme.getDefault()
+
+// Or create custom theme
+val customTheme = FlexTheme(
+    colors = mapOf(
+        "primary" to "#FF6B00",
+        "background" to "#FFFFFF"
+    ),
+    spacing = mapOf(
+        "md" to 16,
+        "lg" to 24
+    )
+)
+
+// Initialize with theme
+val config = FlexConfig.Builder("https://api.com/flexui")
+    .defaultTheme(customTheme)
+    .build()
+    
+FlexUI.init(this, config)</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>Runtime Theme Updates</h3>
+                    <p>Update the default theme at runtime:</p>
+                    
+                    <pre><code class="language-java">// Update theme for dark mode
+Map&lt;String, String&gt; darkColors = new HashMap&lt;&gt;();
+darkColors.put("background", "#121212");
+darkColors.put("text", "#FFFFFF");
+darkColors.put("surface", "#1E1E1E");
+
+FlexTheme darkTheme = new FlexTheme(darkColors, new HashMap&lt;&gt;(), new HashMap&lt;&gt;(), new HashMap&lt;&gt;());
+FlexUI.setDefaultTheme(darkTheme);
+
+// Refresh any cached configurations to use new theme
+FlexUI.clearCache();</code></pre>
+                </section>
+
+                <section>
+                    <h2>Theme Examples</h2>
+
+                    <h3>Light Theme</h3>
+                    <pre><code class="language-json">{
+  "theme": {
+    "colors": {
+      "primary": "#007AFF",
+      "secondary": "#5856D6", 
+      "background": "#FFFFFF",
+      "surface": "#F2F2F7",
+      "text": "#000000",
+      "textSecondary": "#8E8E93",
+      "border": "#C6C6C8",
+      "success": "#34C759",
+      "warning": "#FF9500",
+      "error": "#FF3B30"
+    },
+    "typography": {
+      "headingFont": "system",
+      "bodyFont": "system",
+      "headingSize": 28,
+      "bodySize": 17,
+      "captionSize": 13
+    },
+    "spacing": {
+      "xs": 2,
+      "sm": 4,
+      "md": 8,
+      "lg": 16,
+      "xl": 24
+    },
+    "borderRadius": {
+      "sm": 4,
+      "md": 8,
+      "lg": 12,
+      "full": 999
+    }
+  }
+}</code></pre>
+
+                    <h3>Dark Theme</h3>
+                    <pre><code class="language-json">{
+  "theme": {
+    "colors": {
+      "primary": "#0A84FF",
+      "secondary": "#5E5CE6",
+      "background": "#000000",
+      "surface": "#1C1C1E",
+      "text": "#FFFFFF",
+      "textSecondary": "#8E8E93",
+      "border": "#38383A",
+      "success": "#30D158",
+      "warning": "#FF9F0A",
+      "error": "#FF453A"
+    }
+  }
+}</code></pre>
+
+                    <h3>Brand Theme</h3>
+                    <pre><code class="language-json">{
+  "theme": {
+    "colors": {
+      "primary": "#FF6B00",
+      "primaryLight": "#FF8533",
+      "primaryDark": "#CC5500",
+      "secondary": "#1A1A2E",
+      "accent": "#16213E",
+      "background": "#FFFFFF",
+      "surface": "#F8F9FA",
+      "text": "#333333",
+      "textLight": "#666666",
+      "border": "#E0E0E0"
+    },
+    "typography": {
+      "headingFont": "Montserrat",
+      "bodyFont": "OpenSans",
+      "headingSize": 24,
+      "subHeadingSize": 18,
+      "bodySize": 14,
+      "captionSize": 12
+    },
+    "spacing": {
+      "xs": 4,
+      "sm": 8,
+      "md": 16,
+      "lg": 24,
+      "xl": 32,
+      "xxl": 48
+    }
+  }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Theme Override Patterns</h2>
+                    
+                    <h3>Component-specific Overrides</h3>
+                    <p>Override theme values for specific use cases:</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "button",
+  "props": {
+    "text": "Danger Action",
+    "backgroundColor": "{{colors.error}}",
+    "textColor": "#FFFFFF",
+    "padding": "{{spacing.md}}",
+    "cornerRadius": "{{borderRadius.md}}"
+  }
+}</code></pre>
+
+                    <h3>Calculated Values</h3>
+                    <p>Use theme values as base for calculations (server-side logic):</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "container",
+  "props": {
+    "padding": 24,  // spacing.lg * 1.5
+    "backgroundColor": "#FFE0CC",  // primary color with alpha
+    "child": {
+      "type": "text",
+      "props": {
+        "text": "Featured Content",
+        "textColor": "{{colors.primary}}"
+      }
+    }
+  }
+}</code></pre>
+
+                    <h3>Conditional Theming</h3>
+                    <p>Apply different themes based on data conditions (server-side logic):</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "card",
+  "props": {
+    "backgroundColor": "{{data.isPremium ? colors.primary : colors.surface}}",
+    "elevation": "{{data.isPremium ? 8 : 2}}",
+    "child": {
+      "type": "text",
+      "props": {
+        "text": "{{data.isPremium ? 'Premium User' : 'Standard User'}}",
+        "textColor": "{{data.isPremium ? colors.textOnPrimary : colors.text}}"
+      }
+    }
+  }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Best Practices</h2>
+                    
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Consistent Naming</div>
+                            <ul>
+                                <li>Use semantic names: <code>primary</code>, <code>secondary</code> instead of <code>blue</code>, <code>red</code></li>
+                                <li>Follow size conventions: <code>xs</code>, <code>sm</code>, <code>md</code>, <code>lg</code>, <code>xl</code></li>
+                                <li>Be consistent across platforms (iOS/Android)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Design Tokens</div>
+                            <ul>
+                                <li>Define a base unit (usually 8dp) and build from it</li>
+                                <li>Limit your color palette to essential colors</li>
+                                <li>Use typography scale with clear hierarchy</li>
+                                <li>Define border radius values that match your design system</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Performance</div>
+                            <ul>
+                                <li>Keep theme objects reasonably sized</li>
+                                <li>Use theme variables instead of hardcoding values</li>
+                                <li>Cache theme configurations when possible</li>
+                                <li>Avoid complex nested theme structures</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Accessibility</div>
+                            <ul>
+                                <li>Ensure sufficient color contrast (4.5:1 for normal text)</li>
+                                <li>Support dark mode with appropriate colors</li>
+                                <li>Use accessible font sizes (14sp minimum)</li>
+                                <li>Provide clear visual hierarchy</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Advanced Theming</h2>
+                    
+                    <h3>Theme Inheritance</h3>
+                    <p>Server-side configurations can inherit from base themes:</p>
+                    
+                    <pre><code class="language-json">{
+  "extends": "base_theme",
+  "theme": {
+    "colors": {
+      "primary": "#FF6B00"  // Override just the primary color
+    }
+  }
+}</code></pre>
+
+                    <h3>Platform-specific Themes</h3>
+                    <p>Define different themes for different platforms:</p>
+                    
+                    <pre><code class="language-json">{
+  "theme": {
+    "android": {
+      "colors": {
+        "primary": "#FF6B00"
+      },
+      "typography": {
+        "bodyFont": "Roboto"
+      }
+    },
+    "ios": {
+      "colors": {
+        "primary": "#007AFF"
+      },
+      "typography": {
+        "bodyFont": "SF Pro"
+      }
+    }
+  }
+}</code></pre>
+
+                    <h3>Dynamic Themes</h3>
+                    <p>Load different themes based on user preferences:</p>
+                    
+                    <pre><code class="language-java">// Load theme based on user preference
+String themeMode = userPreferences.getString("theme", "light");
+String configUrl = "https://api.com/flexui/themes/" + themeMode + "/welcome_screen";
+View screen = FlexUI.render(context, configUrl);</code></pre>
+                </section>
+
+                <section>
+                    <h2>Next Steps</h2>
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title"><a href="custom-components.html">Build Custom Components</a></div>
+                            <div class="card-description">
+                                Learn how to register custom component types that use your theme values.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title"><a href="actions.html">Handle Actions</a></div>
+                            <div class="card-description">
+                                Understand how to respond to user interactions and implement callbacks.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title"><a href="api-reference.html">API Reference</a></div>
+                            <div class="card-description">
+                                Complete reference for FlexTheme class and theming methods.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started - FlexUI Documentation</title>
+    <meta name="description" content="Get started with FlexUI in under 5 minutes. Add dependency, initialize, and render your first dynamic UI.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+</head>
+<body>
+    <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+    
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">FlexUI</a>
+                <div class="sidebar-subtitle">Server-Driven Native UI</div>
+            </div>
+            
+            <div class="nav">
+                <ul>
+                    <li><a href="index.html">Overview</a></li>
+                    <li><a href="getting-started.html">Getting Started</a></li>
+                    <li><a href="components.html">Components</a></li>
+                    <li><a href="theming.html">Theming</a></li>
+                    <li><a href="custom-components.html">Custom Components</a></li>
+                    <li><a href="actions.html">Actions</a></li>
+                    <li><a href="caching.html">Caching</a></li>
+                    <li><a href="api-reference.html">API Reference</a></li>
+                    <li><a href="migration.html">Migration Guide</a></li>
+                </ul>
+            </div>
+            
+            <div class="github-link">
+                <a href="https://github.com/venkatesh3007/flexui" class="github-button" target="_blank">
+                    View on GitHub
+                </a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <div class="content">
+                <h1>Getting Started</h1>
+                <p class="hero-subtitle">Get FlexUI running in your Android project in under 5 minutes.</p>
+
+                <section>
+                    <h2>Installation</h2>
+                    
+                    <h3>Step 1: Add Dependency</h3>
+                    <p>Add FlexUI to your <code>build.gradle</code> file:</p>
+                    
+                    <pre><code class="language-kotlin">dependencies {
+    implementation 'dev.flexui:flexui-android:1.0.0'
+}</code></pre>
+                    
+                    <div class="alert info">
+                        <p><strong>Minimum Requirements:</strong> Android SDK 21+ (Android 5.0), Java 8+</p>
+                    </div>
+
+                    <h3>Step 2: Initialize FlexUI</h3>
+                    <p>Initialize FlexUI in your Application class or SDK initialization:</p>
+
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Java</div>
+                            <pre><code class="language-java">public class MyApplication extends Application {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        
+        // Simple initialization
+        FlexUI.init(this, "https://your-api.com/flexui");
+        
+        // OR with configuration
+        FlexConfig config = new FlexConfig.Builder("https://your-api.com/flexui")
+            .cachePolicy(CachePolicy.CACHE_FIRST)
+            .cacheTtlMinutes(60)
+            .connectTimeoutSeconds(10)
+            .enableDebugLogging(true)
+            .build();
+            
+        FlexUI.init(this, config);
+    }
+}</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Kotlin</div>
+                            <pre><code class="language-kotlin">class MyApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        
+        // Simple initialization
+        FlexUI.init(this, "https://your-api.com/flexui")
+        
+        // OR with configuration
+        val config = FlexConfig.Builder("https://your-api.com/flexui")
+            .cachePolicy(CachePolicy.CACHE_FIRST)
+            .cacheTtlMinutes(60)
+            .connectTimeoutSeconds(10)
+            .enableDebugLogging(true)
+            .build()
+            
+        FlexUI.init(this, config)
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Your First Render</h2>
+                    
+                    <h3>Step 1: Create a JSON Configuration</h3>
+                    <p>Host this JSON at <code>https://your-api.com/flexui/welcome_screen</code>:</p>
+                    
+                    <pre><code class="language-json">{
+  "version": "1.0",
+  "theme": {
+    "colors": {
+      "primary": "#FF6B00",
+      "background": "#FFFFFF",
+      "text": "#333333"
+    },
+    "spacing": {
+      "md": 16,
+      "lg": 24
+    },
+    "borderRadius": {
+      "md": 8
+    }
+  },
+  "root": {
+    "type": "column",
+    "props": {
+      "padding": "{{spacing.lg}}",
+      "backgroundColor": "{{colors.background}}",
+      "children": [
+        {
+          "type": "text",
+          "props": {
+            "text": "Welcome to FlexUI!",
+            "textSize": 24,
+            "textColor": "{{colors.primary}}",
+            "fontWeight": "bold",
+            "marginBottom": "{{spacing.md}}"
+          }
+        },
+        {
+          "type": "text",
+          "props": {
+            "text": "This UI is rendered from a server-side JSON configuration.",
+            "textSize": 16,
+            "textColor": "{{colors.text}}",
+            "marginBottom": "{{spacing.lg}}"
+          }
+        },
+        {
+          "type": "button",
+          "props": {
+            "text": "Get Started",
+            "backgroundColor": "{{colors.primary}}",
+            "textColor": "#FFFFFF",
+            "cornerRadius": "{{borderRadius.md}}",
+            "padding": "{{spacing.md}}",
+            "action": {
+              "type": "navigate",
+              "url": "/next_screen"
+            }
+          }
+        }
+      ]
+    }
+  }
+}</code></pre>
+
+                    <h3>Step 2: Render in Your Activity</h3>
+                    
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Java</div>
+                            <pre><code class="language-java">public class MainActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        
+        ViewGroup container = findViewById(R.id.container);
+        
+        // Synchronous render
+        View welcomeScreen = FlexUI.render(this, "welcome_screen");
+        if (welcomeScreen != null) {
+            container.addView(welcomeScreen);
+        }
+        
+        // OR Asynchronous render
+        FlexUI.renderAsync(this, "welcome_screen", new HashMap<>(), 
+            new FlexRenderCallback() {
+                @Override
+                public void onSuccess(View view) {
+                    container.addView(view);
+                }
+                
+                @Override
+                public void onError(FlexError error) {
+                    // Handle error
+                    Log.e("FlexUI", "Render failed", error);
+                }
+            }
+        );
+    }
+}</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Kotlin</div>
+                            <pre><code class="language-kotlin">class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        val container: ViewGroup = findViewById(R.id.container)
+        
+        // Synchronous render
+        val welcomeScreen = FlexUI.render(this, "welcome_screen")
+        welcomeScreen?.let { container.addView(it) }
+        
+        // OR Asynchronous render
+        FlexUI.renderAsync(this, "welcome_screen", emptyMap(),
+            object : FlexRenderCallback {
+                override fun onSuccess(view: View) {
+                    container.addView(view)
+                }
+                
+                override fun onError(error: FlexError) {
+                    // Handle error
+                    Log.e("FlexUI", "Render failed", error)
+                }
+            }
+        )
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="alert success">
+                        <p><strong>That's it!</strong> Your app will now fetch the JSON configuration from your server and render it as native Android views.</p>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Passing Data to Configurations</h2>
+                    <p>You can pass dynamic data to your JSON configurations:</p>
+                    
+                    <pre><code class="language-java">// Pass user data to the configuration
+Map&lt;String, Object&gt; data = new HashMap&lt;&gt;();
+data.put("userName", "John Doe");
+data.put("userPoints", 1250);
+data.put("userLevel", "Gold");
+
+View userProfile = FlexUI.render(this, "user_profile", data);</code></pre>
+
+                    <p>Then reference the data in your JSON using <code>{{data.fieldName}}</code>:</p>
+                    
+                    <pre><code class="language-json">{
+  "type": "column",
+  "props": {
+    "children": [
+      {
+        "type": "text",
+        "props": {
+          "text": "Welcome back, {{data.userName}}!"
+        }
+      },
+      {
+        "type": "text",
+        "props": {
+          "text": "You have {{data.userPoints}} points ({{data.userLevel}} tier)"
+        }
+      }
+    ]
+  }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Handling Actions</h2>
+                    <p>Register action handlers to respond to user interactions:</p>
+                    
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Java</div>
+                            <pre><code class="language-java">// Register navigation handler
+FlexUI.onAction("navigate", new FlexActionHandler() {
+    @Override
+    public void handle(FlexAction action) {
+        String url = action.getString("url");
+        // Navigate to the specified URL
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+    }
+});
+
+// Register custom callback handler
+FlexUI.onEvent("button_clicked", new FlexActionHandler() {
+    @Override
+    public void handle(FlexAction action) {
+        // Handle custom button click
+        String buttonId = action.getString("buttonId");
+        showToast("Button clicked: " + buttonId);
+    }
+});</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Kotlin</div>
+                            <pre><code class="language-kotlin">// Register navigation handler
+FlexUI.onAction("navigate") { action ->
+    val url = action.getString("url")
+    // Navigate to the specified URL
+    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+}
+
+// Register custom callback handler  
+FlexUI.onEvent("button_clicked") { action ->
+    // Handle custom button click
+    val buttonId = action.getString("buttonId")
+    showToast("Button clicked: $buttonId")
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Next Steps</h2>
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title"><a href="components.html">Explore Components</a></div>
+                            <div class="card-description">
+                                Learn about all 14 built-in components and their properties.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title"><a href="theming.html">Customize Themes</a></div>
+                            <div class="card-description">
+                                Set up colors, typography, spacing, and variable resolution.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title"><a href="custom-components.html">Build Custom Components</a></div>
+                            <div class="card-description">
+                                Register your own component types and integrate with existing views.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title"><a href="caching.html">Configure Caching</a></div>
+                            <div class="card-description">
+                                Optimize performance with cache policies and TTL configuration.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Common Issues</h2>
+                    
+                    <div class="alert warning">
+                        <p><strong>Network Security Policy:</strong> If you're testing with HTTP URLs on Android 9+, add <code>android:usesCleartextTraffic="true"</code> to your Application tag in AndroidManifest.xml (development only).</p>
+                    </div>
+                    
+                    <div class="alert info">
+                        <p><strong>ProGuard/R8:</strong> FlexUI uses reflection for JSON parsing. Add these rules to your proguard-rules.pro:</p>
+                        <pre><code>-keep class dev.flexui.schema.** { *; }
+-keep class dev.flexui.FlexError { *; }</code></pre>
+                    </div>
+                    
+                    <div class="alert error">
+                        <p><strong>Initialization Error:</strong> Make sure to call <code>FlexUI.init()</code> before any render calls, preferably in your Application's onCreate().</p>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

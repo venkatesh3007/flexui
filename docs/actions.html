@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actions - FlexUI Documentation</title>
+    <meta name="description" content="Learn how to handle user interactions in FlexUI with the action system: navigate, callback, openUrl, and dismiss actions.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+</head>
+<body>
+    <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+    
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">FlexUI</a>
+                <div class="sidebar-subtitle">Server-Driven Native UI</div>
+            </div>
+            
+            <div class="nav">
+                <ul>
+                    <li><a href="index.html">Overview</a></li>
+                    <li><a href="getting-started.html">Getting Started</a></li>
+                    <li><a href="components.html">Components</a></li>
+                    <li><a href="theming.html">Theming</a></li>
+                    <li><a href="custom-components.html">Custom Components</a></li>
+                    <li><a href="actions.html">Actions</a></li>
+                    <li><a href="caching.html">Caching</a></li>
+                    <li><a href="api-reference.html">API Reference</a></li>
+                    <li><a href="migration.html">Migration Guide</a></li>
+                </ul>
+            </div>
+            
+            <div class="github-link">
+                <a href="https://github.com/venkatesh3007/flexui" class="github-button" target="_blank">
+                    View on GitHub
+                </a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <div class="content">
+                <h1>Actions</h1>
+                <p>FlexUI's action system allows you to respond to user interactions like taps, input changes, and custom events. Actions are defined in your JSON configuration and handled by your application code.</p>
+
+                <section>
+                    <h2>Action Structure</h2>
+                    <p>Actions are defined as objects with a <code>type</code> field and optional additional properties:</p>
+
+                    <pre><code class="language-json">{
+  "type": "action_type",
+  "property1": "value1",
+  "property2": "value2",
+  "data": {
+    "custom": "data"
+  }
+}</code></pre>
+
+                    <p>Actions can be attached to components that support user interaction:</p>
+
+                    <pre><code class="language-json">{
+  "type": "button",
+  "props": {
+    "text": "Click Me",
+    "action": {
+      "type": "navigate",
+      "url": "/next_screen"
+    }
+  }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Built-in Action Types</h2>
+
+                    <h3 id="navigate">Navigate Action</h3>
+                    <p>Navigate to a different screen or external URL:</p>
+
+                    <pre><code class="language-json">{
+  "type": "navigate",
+  "url": "/home",
+  "animated": true,
+  "clearStack": false
+}</code></pre>
+
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>url</td><td>String</td><td>Target URL or screen ID</td></tr>
+                        <tr><td>animated</td><td>Boolean</td><td>Whether to animate the transition (default: true)</td></tr>
+                        <tr><td>clearStack</td><td>Boolean</td><td>Whether to clear navigation stack (default: false)</td></tr>
+                    </table>
+
+                    <h4>Register Navigation Handler</h4>
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Java</div>
+                            <pre><code class="language-java">FlexUI.onAction("navigate", new FlexActionHandler() {
+    @Override
+    public void handle(FlexAction action) {
+        String url = action.getString("url");
+        boolean animated = action.getBoolean("animated", true);
+        boolean clearStack = action.getBoolean("clearStack", false);
+        
+        if (url.startsWith("http")) {
+            // External URL
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            context.startActivity(intent);
+        } else {
+            // Internal navigation
+            navigateToScreen(url, animated, clearStack);
+        }
+    }
+});</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Kotlin</div>
+                            <pre><code class="language-kotlin">FlexUI.onAction("navigate") { action ->
+    val url = action.getString("url") ?: return@onAction
+    val animated = action.getBoolean("animated", true)
+    val clearStack = action.getBoolean("clearStack", false)
+    
+    if (url.startsWith("http")) {
+        // External URL
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        context.startActivity(intent)
+    } else {
+        // Internal navigation
+        navigateToScreen(url, animated, clearStack)
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <h3 id="callback">Callback Action</h3>
+                    <p>Trigger custom callbacks in your application:</p>
+
+                    <pre><code class="language-json">{
+  "type": "callback",
+  "event": "button_clicked",
+  "data": {
+    "buttonId": "login_button",
+    "screen": "login"
+  }
+}</code></pre>
+
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>event</td><td>String</td><td>Event name to trigger</td></tr>
+                        <tr><td>data</td><td>Object</td><td>Custom data to pass to the callback</td></tr>
+                    </table>
+
+                    <h4>Register Callback Handler</h4>
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Java</div>
+                            <pre><code class="language-java">FlexUI.onEvent("button_clicked", new FlexActionHandler() {
+    @Override
+    public void handle(FlexAction action) {
+        String buttonId = action.getString("buttonId");
+        String screen = action.getString("screen");
+        
+        // Handle the button click
+        switch (buttonId) {
+            case "login_button":
+                showLoginDialog();
+                break;
+            case "signup_button":
+                navigateToSignup();
+                break;
+        }
+        
+        // Analytics
+        analytics.track("button_clicked", action.getData());
+    }
+});</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Kotlin</div>
+                            <pre><code class="language-kotlin">FlexUI.onEvent("button_clicked") { action ->
+    val buttonId = action.getString("buttonId")
+    val screen = action.getString("screen")
+    
+    // Handle the button click
+    when (buttonId) {
+        "login_button" -> showLoginDialog()
+        "signup_button" -> navigateToSignup()
+    }
+    
+    // Analytics
+    analytics.track("button_clicked", action.data)
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <h3 id="openurl">Open URL Action</h3>
+                    <p>Open external URLs in browser or appropriate apps:</p>
+
+                    <pre><code class="language-json">{
+  "type": "openUrl",
+  "url": "https://example.com",
+  "inApp": false
+}</code></pre>
+
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>url</td><td>String</td><td>URL to open</td></tr>
+                        <tr><td>inApp</td><td>Boolean</td><td>Open in in-app browser (default: false)</td></tr>
+                    </table>
+
+                    <h3 id="dismiss">Dismiss Action</h3>
+                    <p>Dismiss the current screen or modal:</p>
+
+                    <pre><code class="language-json">{
+  "type": "dismiss",
+  "animated": true,
+  "result": {
+    "success": true,
+    "data": "user_completed_flow"
+  }
+}</code></pre>
+
+                    <table>
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>animated</td><td>Boolean</td><td>Whether to animate dismissal (default: true)</td></tr>
+                        <tr><td>result</td><td>Object</td><td>Result data to pass back</td></tr>
+                    </table>
+                </section>
+
+                <section>
+                    <h2>Action Triggers</h2>
+                    <p>Different components support different action triggers:</p>
+
+                    <h3>Button Actions</h3>
+                    <pre><code class="language-json">{
+  "type": "button",
+  "props": {
+    "text": "Submit",
+    "action": {
+      "type": "callback",
+      "event": "form_submit"
+    }
+  }
+}</code></pre>
+
+                    <h3>Input Actions</h3>
+                    <pre><code class="language-json">{
+  "type": "input",
+  "props": {
+    "placeholder": "Search...",
+    "onTextChanged": {
+      "type": "callback", 
+      "event": "search_query_changed",
+      "debounce": 300
+    },
+    "onSubmit": {
+      "type": "callback",
+      "event": "search_submitted"
+    }
+  }
+}</code></pre>
+
+                    <h3>Toggle Actions</h3>
+                    <pre><code class="language-json">{
+  "type": "toggle",
+  "props": {
+    "value": false,
+    "onChange": {
+      "type": "callback",
+      "event": "setting_changed",
+      "data": {
+        "setting": "notifications"
+      }
+    }
+  }
+}</code></pre>
+
+                    <h3>Image Actions</h3>
+                    <pre><code class="language-json">{
+  "type": "image",
+  "props": {
+    "src": "product_image.jpg",
+    "onClick": {
+      "type": "navigate",
+      "url": "/product_details"
+    }
+  }
+}</code></pre>
+
+                    <h3>Container/Layout Actions</h3>
+                    <pre><code class="language-json">{
+  "type": "card",
+  "props": {
+    "onClick": {
+      "type": "navigate",
+      "url": "/card_details"
+    },
+    "child": {
+      "type": "text",
+      "props": {
+        "text": "Tap anywhere on this card"
+      }
+    }
+  }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Custom Actions</h2>
+                    <p>Define your own action types for application-specific functionality:</p>
+
+                    <h3>Register Custom Action</h3>
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Java</div>
+                            <pre><code class="language-java">// Register custom "share" action
+FlexUI.onAction("share", new FlexActionHandler() {
+    @Override
+    public void handle(FlexAction action) {
+        String title = action.getString("title");
+        String text = action.getString("text");
+        String url = action.getString("url");
+        
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, title);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, text + "\n" + url);
+        
+        Intent chooser = Intent.createChooser(shareIntent, "Share via");
+        context.startActivity(chooser);
+    }
+});
+
+// Register custom "analytics" action
+FlexUI.onAction("analytics", new FlexActionHandler() {
+    @Override
+    public void handle(FlexAction action) {
+        String event = action.getString("event");
+        Map&lt;String, Object&gt; properties = action.getMap("properties");
+        
+        AnalyticsManager.track(event, properties);
+    }
+});</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Kotlin</div>
+                            <pre><code class="language-kotlin">// Register custom "share" action
+FlexUI.onAction("share") { action ->
+    val title = action.getString("title") ?: ""
+    val text = action.getString("text") ?: ""
+    val url = action.getString("url") ?: ""
+    
+    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_SUBJECT, title)
+        putExtra(Intent.EXTRA_TEXT, "$text\n$url")
+    }
+    
+    val chooser = Intent.createChooser(shareIntent, "Share via")
+    context.startActivity(chooser)
+}
+
+// Register custom "analytics" action
+FlexUI.onAction("analytics") { action ->
+    val event = action.getString("event") ?: return@onAction
+    val properties = action.getMap("properties") ?: emptyMap()
+    
+    AnalyticsManager.track(event, properties)
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>Using Custom Actions</h3>
+                    <pre><code class="language-json">{
+  "type": "button",
+  "props": {
+    "text": "Share this article",
+    "action": {
+      "type": "share",
+      "title": "Check out this article!",
+      "text": "I found this interesting article",
+      "url": "https://example.com/article/123"
+    }
+  }
+}</code></pre>
+
+                    <pre><code class="language-json">{
+  "type": "button",
+  "props": {
+    "text": "Track Event",
+    "action": {
+      "type": "analytics",
+      "event": "button_clicked",
+      "properties": {
+        "button_id": "cta_button",
+        "screen": "home",
+        "experiment": "v2"
+      }
+    }
+  }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Action Composition</h2>
+                    <p>Trigger multiple actions in sequence:</p>
+
+                    <h3>Sequential Actions</h3>
+                    <pre><code class="language-json">{
+  "type": "button",
+  "props": {
+    "text": "Submit Order",
+    "actions": [
+      {
+        "type": "analytics",
+        "event": "order_submit_clicked"
+      },
+      {
+        "type": "callback",
+        "event": "submit_order"
+      },
+      {
+        "type": "navigate",
+        "url": "/order_confirmation"
+      }
+    ]
+  }
+}</code></pre>
+
+                    <h3>Conditional Actions</h3>
+                    <p>Server-side logic can determine which actions to include:</p>
+
+                    <pre><code class="language-json">{
+  "type": "button",
+  "props": {
+    "text": "{{data.isLoggedIn ? 'Continue' : 'Login'}}",
+    "action": "{{data.isLoggedIn ? actions.continue : actions.login}}"
+  }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Action Data & Context</h2>
+                    
+                    <h3>Passing Data to Actions</h3>
+                    <p>Actions can access data passed to the FlexUI render method:</p>
+
+                    <pre><code class="language-java">// Pass data when rendering
+Map&lt;String, Object&gt; data = new HashMap&lt;&gt;();
+data.put("userId", "12345");
+data.put("productId", "abc-123");
+data.put("source", "recommendation");
+
+View view = FlexUI.render(context, "product_screen", data);</code></pre>
+
+                    <pre><code class="language-json">{
+  "type": "button",
+  "props": {
+    "text": "Add to Cart",
+    "action": {
+      "type": "callback",
+      "event": "add_to_cart",
+      "data": {
+        "userId": "{{data.userId}}",
+        "productId": "{{data.productId}}",
+        "source": "{{data.source}}"
+      }
+    }
+  }
+}</code></pre>
+
+                    <h3>Dynamic Action Properties</h3>
+                    <p>Use template variables in action properties:</p>
+
+                    <pre><code class="language-json">{
+  "type": "image",
+  "props": {
+    "src": "{{data.imageUrl}}",
+    "onClick": {
+      "type": "openUrl",
+      "url": "{{data.detailUrl}}",
+      "inApp": "{{data.openInApp}}"
+    }
+  }
+}</code></pre>
+
+                    <h3>Component State in Actions</h3>
+                    <p>For input components, current values are automatically included:</p>
+
+                    <pre><code class="language-java">FlexUI.onEvent("form_submit", new FlexActionHandler() {
+    @Override
+    public void handle(FlexAction action) {
+        // Action includes current form values
+        String email = action.getString("email");
+        String password = action.getString("password");
+        
+        authenticateUser(email, password);
+    }
+});</code></pre>
+                </section>
+
+                <section>
+                    <h2>Error Handling</h2>
+
+                    <h3>Action Error Callbacks</h3>
+                    <pre><code class="language-json">{
+  "type": "button",
+  "props": {
+    "text": "Submit",
+    "action": {
+      "type": "callback",
+      "event": "form_submit"
+    },
+    "onError": {
+      "type": "callback",
+      "event": "form_error"
+    }
+  }
+}</code></pre>
+
+                    <h3>Graceful Degradation</h3>
+                    <pre><code class="language-java">FlexUI.onAction("unsupported_action", new FlexActionHandler() {
+    @Override
+    public void handle(FlexAction action) {
+        Log.w("FlexUI", "Unsupported action: " + action.getType());
+        // Provide fallback behavior
+        showToast("Action not supported in this version");
+    }
+});</code></pre>
+
+                    <h3>Validation</h3>
+                    <pre><code class="language-java">FlexUI.onEvent("form_submit", new FlexActionHandler() {
+    @Override
+    public void handle(FlexAction action) {
+        String email = action.getString("email");
+        
+        if (!isValidEmail(email)) {
+            // Show validation error
+            showError("Please enter a valid email address");
+            return;
+        }
+        
+        // Proceed with form submission
+        submitForm(action.getData());
+    }
+});</code></pre>
+                </section>
+
+                <section>
+                    <h2>Performance Considerations</h2>
+
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Debouncing</div>
+                            <p>Use debouncing for frequent events like text input:</p>
+                            <pre><code class="language-json">{
+  "type": "input",
+  "props": {
+    "onTextChanged": {
+      "type": "callback",
+      "event": "search",
+      "debounce": 300
+    }
+  }
+}</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Throttling</div>
+                            <p>Throttle rapid button taps:</p>
+                            <pre><code class="language-java">// In your action handler
+private long lastClickTime = 0;
+
+@Override
+public void handle(FlexAction action) {
+    long now = System.currentTimeMillis();
+    if (now - lastClickTime < 1000) { // 1 second throttle
+        return;
+    }
+    lastClickTime = now;
+    
+    // Handle action
+}</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Async Actions</div>
+                            <p>Handle long-running operations off the main thread:</p>
+                            <pre><code class="language-java">FlexUI.onEvent("heavy_operation", new FlexActionHandler() {
+    @Override
+    public void handle(FlexAction action) {
+        // Show loading
+        showLoading();
+        
+        // Run on background thread
+        executor.execute(() -> {
+            // Heavy operation
+            String result = performHeavyOperation();
+            
+            // Update UI on main thread
+            handler.post(() -> {
+                hideLoading();
+                updateUI(result);
+            });
+        });
+    }
+});</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Testing Actions</h2>
+
+                    <h3>Unit Testing Action Handlers</h3>
+                    <pre><code class="language-java">@Test
+public void testNavigationAction() {
+    FlexAction action = FlexAction.create("navigate")
+        .putString("url", "/home")
+        .putBoolean("animated", true);
+    
+    NavigationActionHandler handler = new NavigationActionHandler(mockNavigator);
+    handler.handle(action);
+    
+    verify(mockNavigator).navigateTo("/home", true);
+}</code></pre>
+
+                    <h3>Integration Testing</h3>
+                    <pre><code class="language-java">@Test
+public void testButtonActionTriggersCallback() {
+    // Setup
+    AtomicBoolean callbackTriggered = new AtomicBoolean(false);
+    FlexUI.onEvent("test_event", action -> callbackTriggered.set(true));
+    
+    // Render component with action
+    String json = "{"
+        + "\"type\": \"button\","
+        + "\"props\": {"
+        + "  \"text\": \"Test\","
+        + "  \"action\": {"
+        + "    \"type\": \"callback\","
+        + "    \"event\": \"test_event\""
+        + "  }"
+        + "}}";
+    
+    View view = FlexUI.renderFromJson(context, json);
+    
+    // Trigger action
+    view.performClick();
+    
+    // Verify
+    assertTrue(callbackTriggered.get());
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Best Practices</h2>
+
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Action Design</div>
+                            <ul>
+                                <li>Use semantic action names (navigate, share, submit)</li>
+                                <li>Keep action payloads small and focused</li>
+                                <li>Provide fallbacks for unsupported actions</li>
+                                <li>Document expected data properties</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">User Experience</div>
+                            <ul>
+                                <li>Provide immediate feedback for user interactions</li>
+                                <li>Handle loading states for async operations</li>
+                                <li>Show appropriate error messages</li>
+                                <li>Prevent double-taps on critical actions</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Analytics</div>
+                            <ul>
+                                <li>Track user interactions with analytics actions</li>
+                                <li>Include context data (screen, component ID)</li>
+                                <li>Use consistent event naming conventions</li>
+                                <li>Respect user privacy preferences</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Security</div>
+                            <ul>
+                                <li>Validate action data on the client side</li>
+                                <li>Sanitize URLs before opening</li>
+                                <li>Don't trust action data for security decisions</li>
+                                <li>Use HTTPS for sensitive operations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Next Steps</h2>
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title"><a href="caching.html">Configure Caching</a></div>
+                            <div class="card-description">
+                                Learn about FlexUI's caching system and how to optimize performance.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title"><a href="api-reference.html">API Reference</a></div>
+                            <div class="card-description">
+                                Complete reference for FlexAction, FlexActionHandler, and ActionDispatcher classes.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title"><a href="migration.html">Migration Guide</a></div>
+                            <div class="card-description">
+                                Learn how to migrate existing UI code to use FlexUI's server-driven approach.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

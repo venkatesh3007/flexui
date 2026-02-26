@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Components - FlexUI Documentation</title>
+    <meta name="description" content="Learn how to register custom components in FlexUI using the FlexComponentFactory interface.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+</head>
+<body>
+    <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+    
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">FlexUI</a>
+                <div class="sidebar-subtitle">Server-Driven Native UI</div>
+            </div>
+            
+            <div class="nav">
+                <ul>
+                    <li><a href="index.html">Overview</a></li>
+                    <li><a href="getting-started.html">Getting Started</a></li>
+                    <li><a href="components.html">Components</a></li>
+                    <li><a href="theming.html">Theming</a></li>
+                    <li><a href="custom-components.html">Custom Components</a></li>
+                    <li><a href="actions.html">Actions</a></li>
+                    <li><a href="caching.html">Caching</a></li>
+                    <li><a href="api-reference.html">API Reference</a></li>
+                    <li><a href="migration.html">Migration Guide</a></li>
+                </ul>
+            </div>
+            
+            <div class="github-link">
+                <a href="https://github.com/venkatesh3007/flexui" class="github-button" target="_blank">
+                    View on GitHub
+                </a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <div class="content">
+                <h1>Custom Components</h1>
+                <p>Extend FlexUI with your own custom components by implementing the <code>FlexComponentFactory</code> interface. This allows you to integrate existing views, third-party libraries, or completely custom UI elements into your server-driven layouts.</p>
+
+                <section>
+                    <h2>FlexComponentFactory Interface</h2>
+                    <p>The <code>FlexComponentFactory</code> interface has a single method that creates an Android View from FlexUI props:</p>
+
+                    <pre><code class="language-java">public interface FlexComponentFactory {
+    /**
+     * Create a View for this component type.
+     * 
+     * @param context Android context
+     * @param props Component properties from JSON
+     * @param theme Current theme configuration
+     * @return View instance for this component
+     */
+    View create(Context context, FlexProps props, FlexTheme theme);
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Basic Custom Component</h2>
+                    <p>Let's create a simple custom component that displays a circular avatar image:</p>
+
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Java Implementation</div>
+                            <pre><code class="language-java">public class CircleImageViewFactory implements FlexComponentFactory {
+    
+    @Override
+    public View create(Context context, FlexProps props, FlexTheme theme) {
+        CircleImageView imageView = new CircleImageView(context);
+        
+        // Get image URL
+        String imageUrl = props.getString("src");
+        if (imageUrl != null) {
+            // Load image using your preferred image loading library
+            // Glide.with(context).load(imageUrl).into(imageView);
+        }
+        
+        // Apply size
+        int size = props.getInt("size", 48); // Default 48dp
+        int sizePixels = (int) TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, 
+            size, 
+            context.getResources().getDisplayMetrics()
+        );
+        
+        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(sizePixels, sizePixels);
+        imageView.setLayoutParams(layoutParams);
+        
+        // Apply border from theme
+        String borderColor = props.getString("borderColor");
+        if (borderColor != null) {
+            int color = Color.parseColor(borderColor);
+            imageView.setBorderColor(color);
+        }
+        
+        int borderWidth = props.getInt("borderWidth", 0);
+        imageView.setBorderWidth(borderWidth);
+        
+        return imageView;
+    }
+}
+
+// Register the custom component
+FlexUI.registerComponent("circle_image", new CircleImageViewFactory());</code></pre>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Kotlin Implementation</div>
+                            <pre><code class="language-kotlin">class CircleImageViewFactory : FlexComponentFactory {
+    
+    override fun create(context: Context, props: FlexProps, theme: FlexTheme): View {
+        val imageView = CircleImageView(context)
+        
+        // Get image URL
+        props.getString("src")?.let { imageUrl ->
+            // Load image using your preferred image loading library
+            // Glide.with(context).load(imageUrl).into(imageView)
+        }
+        
+        // Apply size
+        val size = props.getInt("size", 48) // Default 48dp
+        val sizePixels = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            size.toFloat(),
+            context.resources.displayMetrics
+        ).toInt()
+        
+        imageView.layoutParams = ViewGroup.LayoutParams(sizePixels, sizePixels)
+        
+        // Apply border from theme
+        props.getString("borderColor")?.let { borderColor ->
+            val color = Color.parseColor(borderColor)
+            imageView.borderColor = color
+        }
+        
+        val borderWidth = props.getInt("borderWidth", 0)
+        imageView.borderWidth = borderWidth
+        
+        return imageView
+    }
+}
+
+// Register the custom component
+FlexUI.registerComponent("circle_image", CircleImageViewFactory())</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>Using the Custom Component</h3>
+                    <p>Once registered, use your custom component in JSON configurations:</p>
+
+                    <pre><code class="language-json">{
+  "type": "circle_image",
+  "props": {
+    "src": "https://example.com/avatar.jpg",
+    "size": 64,
+    "borderColor": "{{colors.primary}}",
+    "borderWidth": 2
+  }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Advanced Example: Scratch Card</h2>
+                    <p>Here's a more complex example that might be used in a gaming or rewards SDK like Flyy:</p>
+
+                    <pre><code class="language-java">public class ScratchCardViewFactory implements FlexComponentFactory {
+    
+    @Override
+    public View create(Context context, FlexProps props, FlexTheme theme) {
+        ScratchCardView scratchView = new ScratchCardView(context);
+        
+        // Configure scratch area
+        String scratchImage = props.getString("scratchImage", "scratch_overlay");
+        scratchView.setScratchImage(scratchImage);
+        
+        // Configure reward content
+        String rewardText = props.getString("rewardText");
+        if (rewardText != null) {
+            scratchView.setRewardText(rewardText);
+        }
+        
+        String rewardImage = props.getString("rewardImage");
+        if (rewardImage != null) {
+            scratchView.setRewardImage(rewardImage);
+        }
+        
+        // Apply theme colors
+        String backgroundColor = props.getString("backgroundColor");
+        if (backgroundColor == null) {
+            backgroundColor = theme.getColor("surface");
+        }
+        if (backgroundColor != null) {
+            scratchView.setBackgroundColor(Color.parseColor(backgroundColor));
+        }
+        
+        // Configure scratch threshold
+        float threshold = props.getFloat("scratchThreshold", 0.3f);
+        scratchView.setScratchThreshold(threshold);
+        
+        // Handle reveal action
+        FlexProps actionProps = props.getProps("onReveal");
+        if (actionProps != null) {
+            scratchView.setOnScratchCompleteListener(new ScratchCardView.OnScratchCompleteListener() {
+                @Override
+                public void onScratchComplete() {
+                    FlexAction action = FlexAction.fromProps(actionProps);
+                    ActionDispatcher.dispatch(action);
+                }
+            });
+        }
+        
+        // Apply layout properties
+        applyLayoutProperties(scratchView, props);
+        
+        return scratchView;
+    }
+    
+    private void applyLayoutProperties(View view, FlexProps props) {
+        // Apply margins, padding, etc.
+        int margin = props.getInt("margin", 0);
+        if (margin > 0) {
+            ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(margin, margin, margin, margin);
+            view.setLayoutParams(params);
+        }
+    }
+}</code></pre>
+
+                    <h3>JSON Usage</h3>
+                    <pre><code class="language-json">{
+  "type": "scratch_card",
+  "props": {
+    "rewardText": "You won 100 coins!",
+    "rewardImage": "coin_icon",
+    "scratchImage": "silver_scratch",
+    "backgroundColor": "{{colors.surface}}",
+    "scratchThreshold": 0.4,
+    "margin": 16,
+    "onReveal": {
+      "type": "callback",
+      "event": "scratch_revealed",
+      "data": {
+        "cardId": "{{data.cardId}}",
+        "reward": "100_coins"
+      }
+    }
+  }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Component Registration Patterns</h2>
+
+                    <h3>Initialization-time Registration</h3>
+                    <p>Register all your custom components during SDK initialization:</p>
+
+                    <pre><code class="language-java">public class MySDK {
+    public static void init(Context context, String apiUrl) {
+        // Initialize FlexUI
+        FlexUI.init(context, apiUrl);
+        
+        // Register custom components
+        FlexUI.registerComponent("circle_image", new CircleImageViewFactory());
+        FlexUI.registerComponent("scratch_card", new ScratchCardViewFactory());
+        FlexUI.registerComponent("leaderboard", new LeaderboardViewFactory());
+        FlexUI.registerComponent("progress_ring", new ProgressRingViewFactory());
+        FlexUI.registerComponent("confetti", new ConfettiViewFactory());
+    }
+}</code></pre>
+
+                    <h3>Lazy Registration</h3>
+                    <p>Register components only when needed:</p>
+
+                    <pre><code class="language-java">public class ComponentRegistry {
+    private static final Map&lt;String, Class&lt;? extends FlexComponentFactory&gt;&gt; FACTORIES = new HashMap&lt;&gt;();
+    
+    static {
+        FACTORIES.put("scratch_card", ScratchCardViewFactory.class);
+        FACTORIES.put("leaderboard", LeaderboardViewFactory.class);
+        // Add more mappings
+    }
+    
+    public static void ensureRegistered(String componentType) {
+        if (!FlexUI.isComponentRegistered(componentType)) {
+            Class&lt;? extends FlexComponentFactory&gt; factoryClass = FACTORIES.get(componentType);
+            if (factoryClass != null) {
+                try {
+                    FlexComponentFactory factory = factoryClass.newInstance();
+                    FlexUI.registerComponent(componentType, factory);
+                } catch (Exception e) {
+                    Log.e("ComponentRegistry", "Failed to register: " + componentType, e);
+                }
+            }
+        }
+    }
+}</code></pre>
+
+                    <h3>Plugin-based Registration</h3>
+                    <p>Allow third-party plugins to register components:</p>
+
+                    <pre><code class="language-java">public interface FlexUIPlugin {
+    void registerComponents();
+}
+
+public class PluginManager {
+    public static void loadPlugin(FlexUIPlugin plugin) {
+        plugin.registerComponents();
+    }
+}
+
+// Usage
+PluginManager.loadPlugin(new PaymentUIPlugin());
+PluginManager.loadPlugin(new SocialUIPlugin());</code></pre>
+                </section>
+
+                <section>
+                    <h2>Working with Props</h2>
+                    
+                    <h3>Type-safe Property Access</h3>
+                    <pre><code class="language-java">public class MyComponentFactory implements FlexComponentFactory {
+    
+    @Override
+    public View create(Context context, FlexProps props, FlexTheme theme) {
+        // Required properties
+        String title = props.getRequiredString("title");
+        int maxValue = props.getRequiredInt("maxValue");
+        
+        // Optional properties with defaults
+        int currentValue = props.getInt("currentValue", 0);
+        boolean showLabel = props.getBoolean("showLabel", true);
+        String color = props.getString("color", theme.getColor("primary"));
+        
+        // Complex properties
+        List&lt;String&gt; items = props.getStringList("items");
+        FlexProps styleProps = props.getProps("style");
+        
+        // Create and configure your view
+        MyCustomView view = new MyCustomView(context);
+        view.setTitle(title);
+        view.setMaxValue(maxValue);
+        view.setCurrentValue(currentValue);
+        // ... configure other properties
+        
+        return view;
+    }
+}</code></pre>
+
+                    <h3>Handling Theme Variables</h3>
+                    <pre><code class="language-java">// Theme variables are resolved before reaching your factory
+String primaryColor = props.getString("primaryColor"); // "{{colors.primary}}" already resolved
+
+// But you can still access theme directly
+String fallbackColor = theme.getColor("primary");
+String textColor = props.getString("textColor", fallbackColor);
+
+// Convert colors
+Integer colorInt = theme.getColorInt("primary");
+if (colorInt != null) {
+    view.setTextColor(colorInt);
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Handling Actions in Custom Components</h2>
+                    <p>Custom components can trigger actions just like built-in components:</p>
+
+                    <pre><code class="language-java">public class InteractiveComponentFactory implements FlexComponentFactory {
+    
+    @Override
+    public View create(Context context, FlexProps props, FlexTheme theme) {
+        Button button = new Button(context);
+        
+        // Configure button
+        String text = props.getString("text", "Button");
+        button.setText(text);
+        
+        // Handle click action
+        FlexProps clickAction = props.getProps("onClick");
+        if (clickAction != null) {
+            button.setOnClickListener(v -> {
+                FlexAction action = FlexAction.fromProps(clickAction);
+                ActionDispatcher.dispatch(action);
+            });
+        }
+        
+        // Handle long click action
+        FlexProps longClickAction = props.getProps("onLongClick");
+        if (longClickAction != null) {
+            button.setOnLongClickListener(v -> {
+                FlexAction action = FlexAction.fromProps(longClickAction);
+                ActionDispatcher.dispatch(action);
+                return true;
+            });
+        }
+        
+        return button;
+    }
+}</code></pre>
+
+                    <h3>Custom Event Callbacks</h3>
+                    <pre><code class="language-java">// In your custom component
+FlexProps progressAction = props.getProps("onProgressChanged");
+if (progressAction != null) {
+    progressView.setOnProgressChangedListener(progress -> {
+        // Create action with dynamic data
+        Map&lt;String, Object&gt; eventData = new HashMap&lt;&gt;();
+        eventData.put("progress", progress);
+        eventData.put("componentId", props.getString("id"));
+        
+        FlexAction action = FlexAction.fromProps(progressAction);
+        action.putData(eventData);
+        ActionDispatcher.dispatch(action);
+    });
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Best Practices</h2>
+
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title">Performance</div>
+                            <ul>
+                                <li>Cache expensive resources (images, fonts) in your factory</li>
+                                <li>Reuse view pools when possible</li>
+                                <li>Avoid heavy operations in the create() method</li>
+                                <li>Use lazy loading for complex nested components</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Error Handling</div>
+                            <ul>
+                                <li>Provide sensible defaults for all properties</li>
+                                <li>Validate required properties early</li>
+                                <li>Gracefully handle missing resources</li>
+                                <li>Log errors but don't crash the app</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Theme Integration</div>
+                            <ul>
+                                <li>Always respect theme colors and spacing</li>
+                                <li>Provide theme variable fallbacks</li>
+                                <li>Support both light and dark themes</li>
+                                <li>Use theme typography settings</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Documentation</div>
+                            <ul>
+                                <li>Document all supported properties</li>
+                                <li>Provide JSON usage examples</li>
+                                <li>Specify required vs. optional properties</li>
+                                <li>Include theme variable examples</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Testing Custom Components</h2>
+
+                    <h3>Unit Testing</h3>
+                    <pre><code class="language-java">@Test
+public void testCircleImageViewFactory() {
+    Context context = ApplicationProvider.getApplicationContext();
+    FlexTheme theme = FlexTheme.getDefault();
+    
+    Map&lt;String, Object&gt; propsData = new HashMap&lt;&gt;();
+    propsData.put("src", "https://example.com/image.jpg");
+    propsData.put("size", 64);
+    propsData.put("borderColor", "#FF6B00");
+    propsData.put("borderWidth", 2);
+    
+    FlexProps props = new FlexProps(propsData);
+    CircleImageViewFactory factory = new CircleImageViewFactory();
+    
+    View view = factory.create(context, props, theme);
+    
+    assertNotNull(view);
+    assertTrue(view instanceof CircleImageView);
+    
+    CircleImageView imageView = (CircleImageView) view;
+    assertEquals(2, imageView.getBorderWidth());
+}</code></pre>
+
+                    <h3>Integration Testing</h3>
+                    <pre><code class="language-java">@Test
+public void testCustomComponentInFlexUI() {
+    // Register custom component
+    FlexUI.registerComponent("circle_image", new CircleImageViewFactory());
+    
+    String json = "{"
+        + "\"type\": \"circle_image\","
+        + "\"props\": {"
+        + "  \"src\": \"test_image\","
+        + "  \"size\": 48"
+        + "}}";
+    
+    View view = FlexUI.renderFromJson(context, json);
+    
+    assertNotNull(view);
+    assertTrue(view instanceof CircleImageView);
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Common Patterns</h2>
+
+                    <h3>Wrapper Components</h3>
+                    <p>Wrap existing views with FlexUI-compatible interfaces:</p>
+
+                    <pre><code class="language-java">public class YouTubePlayerFactory implements FlexComponentFactory {
+    
+    @Override
+    public View create(Context context, FlexProps props, FlexTheme theme) {
+        YouTubePlayerView playerView = new YouTubePlayerView(context);
+        
+        String videoId = props.getRequiredString("videoId");
+        boolean autoplay = props.getBoolean("autoplay", false);
+        
+        playerView.initialize(API_KEY, new YouTubePlayer.OnInitializedListener() {
+            @Override
+            public void onInitializationSuccess(YouTubePlayer.Provider provider, 
+                    YouTubePlayer player, boolean wasRestored) {
+                if (autoplay && !wasRestored) {
+                    player.loadVideo(videoId);
+                } else {
+                    player.cueVideo(videoId);
+                }
+            }
+            
+            @Override
+            public void onInitializationFailure(YouTubePlayer.Provider provider, 
+                    YouTubePlayerInitializationResult error) {
+                // Handle error
+            }
+        });
+        
+        return playerView;
+    }
+}</code></pre>
+
+                    <h3>Composite Components</h3>
+                    <p>Create components that contain multiple child views:</p>
+
+                    <pre><code class="language-java">public class UserCardFactory implements FlexComponentFactory {
+    
+    @Override
+    public View create(Context context, FlexProps props, FlexTheme theme) {
+        LinearLayout container = new LinearLayout(context);
+        container.setOrientation(LinearLayout.HORIZONTAL);
+        container.setPadding(16, 16, 16, 16);
+        
+        // Avatar
+        CircleImageView avatar = new CircleImageView(context);
+        String avatarUrl = props.getString("avatarUrl");
+        if (avatarUrl != null) {
+            Glide.with(context).load(avatarUrl).into(avatar);
+        }
+        container.addView(avatar);
+        
+        // User info
+        LinearLayout infoContainer = new LinearLayout(context);
+        infoContainer.setOrientation(LinearLayout.VERTICAL);
+        
+        TextView nameView = new TextView(context);
+        nameView.setText(props.getString("name", "Unknown"));
+        nameView.setTextSize(16);
+        nameView.setTextColor(theme.getColorInt("text"));
+        infoContainer.addView(nameView);
+        
+        TextView emailView = new TextView(context);
+        emailView.setText(props.getString("email", ""));
+        emailView.setTextSize(14);
+        emailView.setTextColor(theme.getColorInt("textSecondary"));
+        infoContainer.addView(emailView);
+        
+        container.addView(infoContainer);
+        
+        return container;
+    }
+}</code></pre>
+                </section>
+
+                <section>
+                    <h2>Next Steps</h2>
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-title"><a href="actions.html">Learn About Actions</a></div>
+                            <div class="card-description">
+                                Understand how to handle user interactions and implement custom action types.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title"><a href="api-reference.html">API Reference</a></div>
+                            <div class="card-description">
+                                Complete reference for FlexComponentFactory, FlexProps, and related interfaces.
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title"><a href="caching.html">Configure Caching</a></div>
+                            <div class="card-description">
+                                Optimize performance with proper caching strategies for your custom components.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

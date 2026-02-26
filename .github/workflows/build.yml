@@ -1,0 +1,131 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  create:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Make gradlew executable
+      run: |
+        cd flexui-android
+        chmod +x ./gradlew || echo "gradlew not found, using gradle wrapper setup"
+        
+    - name: Setup Gradle Wrapper
+      run: |
+        cd flexui-android
+        if [ ! -f gradlew ]; then
+          gradle wrapper --gradle-version 8.5
+          chmod +x gradlew
+        fi
+        
+    - name: Build Debug APK
+      run: |
+        cd flexui-android
+        ./gradlew :sample:assembleDebug
+        
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: flexui-sample-debug-${{ github.sha }}
+        path: flexui-android/sample/build/outputs/apk/debug/*.apk
+        retention-days: 30
+
+  release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Make gradlew executable
+      run: |
+        cd flexui-android
+        chmod +x ./gradlew || echo "gradlew not found, using gradle wrapper setup"
+        
+    - name: Setup Gradle Wrapper
+      run: |
+        cd flexui-android
+        if [ ! -f gradlew ]; then
+          gradle wrapper --gradle-version 8.5
+          chmod +x gradlew
+        fi
+        
+    - name: Build Release APK
+      run: |
+        cd flexui-android
+        ./gradlew :sample:assembleDebug
+        
+    - name: Get tag name
+      id: tag
+      run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: FlexUI ${{ steps.tag.outputs.tag }}
+        body: |
+          FlexUI SDK Release ${{ steps.tag.outputs.tag }}
+          
+          ## Sample APK
+          - FlexUI Sample App (Debug Build)
+          
+          ## Changes
+          See [CHANGELOG.md](CHANGELOG.md) for details.
+        files: |
+          flexui-android/sample/build/outputs/apk/debug/*.apk
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
