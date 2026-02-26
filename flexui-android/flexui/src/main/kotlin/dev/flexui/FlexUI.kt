@@ -59,7 +59,7 @@ object FlexUI {
      */
     @JvmStatic
     fun registerComponent(type: String, factory: FlexComponentFactory) {
-        ComponentRegistry.registerComponent(type, factory)
+        ComponentRegistry.getInstance().registerComponent(type, factory)
     }
     
     /**
@@ -67,7 +67,7 @@ object FlexUI {
      */
     @JvmStatic
     fun onAction(actionType: String, handler: FlexActionHandler) {
-        ActionDispatcher.registerHandler(actionType, handler)
+        ActionDispatcher.getInstance().registerHandler(actionType, handler)
     }
     
     /**
@@ -75,7 +75,7 @@ object FlexUI {
      */
     @JvmStatic
     fun onEvent(eventName: String, handler: FlexActionHandler) {
-        ActionDispatcher.registerEventHandler(eventName, handler)
+        ActionDispatcher.getInstance().registerEventHandler(eventName, handler)
     }
     
     /**
@@ -160,7 +160,7 @@ object FlexUI {
         return try {
             val config = FlexParser.parseConfig(jsonConfig)
             val theme = ThemeDefaults.mergeWithDefaults(config.theme)
-            FlexRenderer.render(context, config.root, theme, data)
+            FlexRenderer.getInstance().render(context, config.root, theme, data)
         } catch (e: Exception) {
             throw FlexError.parseError("Failed to parse JSON config", e)
         }
@@ -220,7 +220,7 @@ object FlexUI {
      */
     @JvmStatic
     fun isComponentRegistered(type: String): Boolean {
-        return ComponentRegistry.isRegistered(type)
+        return ComponentRegistry.getInstance().isRegistered(type)
     }
     
     private fun ensureInitialized() {

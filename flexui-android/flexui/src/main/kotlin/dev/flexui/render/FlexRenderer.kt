@@ -187,9 +187,6 @@ class FlexRenderer private constructor(
         @Volatile
         private var INSTANCE: FlexRenderer? = null
         
-        /**
-         * Get singleton instance
-         */
         @JvmStatic
         fun getInstance(): FlexRenderer {
             return INSTANCE ?: synchronized(this) {
@@ -200,28 +197,12 @@ class FlexRenderer private constructor(
             }
         }
         
-        /**
-         * Create a new renderer instance
-         */
         @JvmStatic
         fun create(): FlexRenderer {
             return FlexRenderer(
                 ComponentRegistry.getInstance(),
                 ActionDispatcher.getInstance()
             )
-        }
-        
-        /**
-         * Render using singleton instance
-         */
-        @JvmStatic
-        fun render(
-            context: Context,
-            node: FlexNode,
-            theme: FlexTheme,
-            data: Map<String, Any> = emptyMap()
-        ): View? {
-            return getInstance().render(context, node, theme, data)
         }
     }
 }

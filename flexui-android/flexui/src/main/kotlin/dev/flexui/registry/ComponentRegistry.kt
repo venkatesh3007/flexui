@@ -127,43 +127,11 @@ class ComponentRegistry private constructor() {
         @Volatile
         private var INSTANCE: ComponentRegistry? = null
         
-        /**
-         * Get singleton instance
-         */
         @JvmStatic
         fun getInstance(): ComponentRegistry {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: ComponentRegistry().also { INSTANCE = it }
             }
-        }
-        
-        /**
-         * Register component using singleton instance
-         */
-        @JvmStatic
-        fun registerComponent(type: String, factory: FlexComponentFactory) {
-            getInstance().registerComponent(type, factory)
-        }
-        
-        /**
-         * Create view using singleton instance
-         */
-        @JvmStatic
-        fun createView(
-            context: Context, 
-            node: FlexNode, 
-            theme: FlexTheme, 
-            renderer: FlexRenderer
-        ): View? {
-            return getInstance().createView(context, node, theme, renderer)
-        }
-        
-        /**
-         * Check if component is registered using singleton instance
-         */
-        @JvmStatic
-        fun isRegistered(type: String): Boolean {
-            return getInstance().isRegistered(type)
         }
     }
 }
