@@ -28,21 +28,45 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun registerComponents() {
-        // Scratch card surface — gold gradient card
-        FlexUI.registerComponent("scratch_card_surface") { context, props, theme ->
-            val frame = FrameLayout(context)
-            val gd = GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                intArrayOf(
-                    Color.parseColor("#FFD700"),
-                    Color.parseColor("#FF8C00"),
-                    Color.parseColor("#FF4500")
-                )
+        // Real interactive scratch card — touch to scratch, auto-reveals at 40%
+        FlexUI.registerComponent("scratch_card") { context, props, theme ->
+            val card = ScratchCardView(context)
+
+            // Configure from JSON props
+            props.getString("rewardText")?.let { card.rewardText = it }
+            props.getString("rewardLabel")?.let { card.rewardLabel = it }
+            props.getString("topLabel")?.let { card.topLabel = it }
+            props.getString("coverText")?.let { card.coverText = it }
+
+            // Cover colors
+            val coverColor1 = props.getString("coverColor1") ?: "#C0C0C0"
+            val coverColor2 = props.getString("coverColor2") ?: "#A8A8A8"
+            val coverColor3 = props.getString("coverColor3") ?: "#909090"
+            card.coverColors = intArrayOf(
+                Color.parseColor(coverColor1),
+                Color.parseColor(coverColor2),
+                Color.parseColor(coverColor3)
             )
-            gd.cornerRadius = 24f
-            frame.background = gd
-            frame.elevation = 12f
-            frame
+
+            props.getString("rewardTextColor")?.let {
+                card.rewardTextColor = Color.parseColor(it)
+            }
+            props.getString("rewardBgColor")?.let {
+                card.rewardBgColor = Color.parseColor(it)
+            }
+
+            // When fully revealed, dispatch the reveal callback
+            card.onRevealed = {
+                val rewardId = props.getString("rewardId") ?: "unknown"
+                val amount = props.getString("amount") ?: "0"
+                Toast.makeText(
+                    context,
+                    "🎉 You won ₹$amount!",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+
+            card
         }
 
         // Progress bar — colored fill inside grey track
@@ -55,7 +79,8 @@ class MainActivity : AppCompatActivity() {
 
             val fill = View(context)
             val fillBg = GradientDrawable()
-            fillBg.setColor(Color.parseColor("#FF6B00"))
+            val fillColor = props.getString("color") ?: "#FF6B00"
+            fillBg.setColor(Color.parseColor(fillColor))
             fillBg.cornerRadius = 12f
             fill.background = fillBg
 
@@ -81,7 +106,7 @@ class MainActivity : AppCompatActivity() {
             when (event) {
                 "claim_reward" -> {
                     val amount = data?.get("amount") as? String ?: "0"
-                    Toast.makeText(this, "🎉 Claimed ₹$amount cashback!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "🎉 ₹$amount cashback claimed! Check your wallet.", Toast.LENGTH_LONG).show()
                 }
                 "view_terms" -> {
                     Toast.makeText(this, "Opening Terms & Conditions...", Toast.LENGTH_SHORT).show()
@@ -120,12 +145,11 @@ class MainActivity : AppCompatActivity() {
           "surface": "#FFFFFF",
           "text": "#1A1A1A",
           "textSecondary": "#757575",
-          "success": "#2E7D32",
-          "gold": "#FFB300"
+          "success": "#2E7D32"
         },
         "typography": {
-          "headingSize": 28,
-          "subheadingSize": 20,
+          "headingSize": 26,
+          "subheadingSize": 18,
           "bodySize": 15,
           "captionSize": 12
         },
@@ -134,8 +158,7 @@ class MainActivity : AppCompatActivity() {
           "sm": 8,
           "md": 16,
           "lg": 24,
-          "xl": 32,
-          "xxl": 48
+          "xl": 32
         },
         "borderRadius": {
           "sm": 8,
@@ -153,25 +176,13 @@ class MainActivity : AppCompatActivity() {
 
           {
             "type": "spacer",
-            "props": { "size": 24 }
+            "props": { "size": 16 }
           },
 
           {
             "type": "text",
             "props": {
-              "content": "🎉",
-              "fontSize": 56,
-              "textAlign": "center"
-            },
-            "style": {
-              "marginBottom": "{{spacing.sm}}"
-            }
-          },
-
-          {
-            "type": "text",
-            "props": {
-              "content": "Congratulations!",
+              "content": "🎁 You have a reward!",
               "fontSize": "{{typography.headingSize}}",
               "color": "{{colors.text}}",
               "textAlign": "center",
@@ -185,7 +196,7 @@ class MainActivity : AppCompatActivity() {
           {
             "type": "text",
             "props": {
-              "content": "You scratched a winning card",
+              "content": "Scratch the card below to reveal your prize",
               "fontSize": "{{typography.bodySize}}",
               "color": "{{colors.textSecondary}}",
               "textAlign": "center"
@@ -196,58 +207,24 @@ class MainActivity : AppCompatActivity() {
           },
 
           {
-            "type": "scratch_card_surface",
-            "style": {
-              "height": 200,
-              "marginBottom": "{{spacing.xl}}",
-              "padding": "{{spacing.lg}}"
+            "type": "scratch_card",
+            "props": {
+              "rewardText": "₹500",
+              "rewardLabel": "CASHBACK",
+              "topLabel": "YOU WON",
+              "coverText": "SCRATCH HERE",
+              "coverColor1": "#C0C0C0",
+              "coverColor2": "#A0A0A0",
+              "coverColor3": "#808080",
+              "rewardBgColor": "#FFF8E1",
+              "rewardTextColor": "#1A1A1A",
+              "rewardId": "scratch_500",
+              "amount": "500"
             },
-            "children": [
-              {
-                "type": "column",
-                "style": {
-                  "padding": "{{spacing.lg}}"
-                },
-                "children": [
-                  {
-                    "type": "text",
-                    "props": {
-                      "content": "YOU WON",
-                      "fontSize": 14,
-                      "color": "#FFFFFF",
-                      "textAlign": "center",
-                      "fontWeight": "bold"
-                    },
-                    "style": {
-                      "marginBottom": "{{spacing.sm}}"
-                    }
-                  },
-                  {
-                    "type": "text",
-                    "props": {
-                      "content": "₹500",
-                      "fontSize": 48,
-                      "color": "#FFFFFF",
-                      "textAlign": "center",
-                      "fontWeight": "bold"
-                    },
-                    "style": {
-                      "marginBottom": "{{spacing.xs}}"
-                    }
-                  },
-                  {
-                    "type": "text",
-                    "props": {
-                      "content": "CASHBACK",
-                      "fontSize": 18,
-                      "color": "#FFFFFF",
-                      "textAlign": "center",
-                      "fontWeight": "bold"
-                    }
-                  }
-                ]
-              }
-            ]
+            "style": {
+              "height": 220,
+              "marginBottom": "{{spacing.xl}}"
+            }
           },
 
           {
@@ -264,7 +241,7 @@ class MainActivity : AppCompatActivity() {
               {
                 "type": "text",
                 "props": {
-                  "content": "Reward Details",
+                  "content": "How it works",
                   "fontSize": "{{typography.subheadingSize}}",
                   "color": "{{colors.text}}",
                   "fontWeight": "bold"
@@ -280,49 +257,34 @@ class MainActivity : AppCompatActivity() {
                 }
               },
               {
-                "type": "row",
+                "type": "text",
+                "props": {
+                  "content": "👆  Scratch the silver area with your finger",
+                  "fontSize": "{{typography.bodySize}}",
+                  "color": "{{colors.text}}"
+                },
                 "style": {
                   "marginBottom": "{{spacing.sm}}"
-                },
-                "children": [
-                  {
-                    "type": "text",
-                    "props": {
-                      "content": "✅  Valid for 7 days",
-                      "fontSize": "{{typography.bodySize}}",
-                      "color": "{{colors.text}}"
-                    }
-                  }
-                ]
+                }
               },
               {
-                "type": "row",
+                "type": "text",
+                "props": {
+                  "content": "🎯  Reveal 40% to uncover your reward",
+                  "fontSize": "{{typography.bodySize}}",
+                  "color": "{{colors.text}}"
+                },
                 "style": {
                   "marginBottom": "{{spacing.sm}}"
-                },
-                "children": [
-                  {
-                    "type": "text",
-                    "props": {
-                      "content": "🛒  Min. order ₹999",
-                      "fontSize": "{{typography.bodySize}}",
-                      "color": "{{colors.text}}"
-                    }
-                  }
-                ]
+                }
               },
               {
-                "type": "row",
-                "children": [
-                  {
-                    "type": "text",
-                    "props": {
-                      "content": "🚚  Free delivery included",
-                      "fontSize": "{{typography.bodySize}}",
-                      "color": "{{colors.text}}"
-                    }
-                  }
-                ]
+                "type": "text",
+                "props": {
+                  "content": "💰  Claim your cashback instantly",
+                  "fontSize": "{{typography.bodySize}}",
+                  "color": "{{colors.text}}"
+                }
               }
             ]
           },
@@ -332,7 +294,7 @@ class MainActivity : AppCompatActivity() {
             "props": {
               "text": "Claim Reward",
               "type": "filled",
-              "fontSize": 18
+              "fontSize": 17
             },
             "action": {
               "type": "callback",
@@ -361,7 +323,7 @@ class MainActivity : AppCompatActivity() {
               "data": {}
             },
             "style": {
-              "marginBottom": "{{spacing.xl}}"
+              "marginBottom": "{{spacing.lg}}"
             }
           }
 
