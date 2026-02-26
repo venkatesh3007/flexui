@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         }
         
         // Register dismiss handler
-        FlexUI.onAction("dismiss") {
+        FlexUI.onAction("dismiss") { _ ->
             finish()
         }
     }
