@@ -1,0 +1,59 @@
+# Xcode
+*.pbxproj
+*.xcworkspace
+.DS_Store
+build/
+*.xcarchive
+*.ipa
+*.app
+
+# Swift Package Manager
+.build/
+.swiftpm/
+*.xcconfig
+
+# CocoaPods
+Pods/
+Podfile.lock
+*.podspec.lock
+
+# Carthage
+Carthage/
+Cartfile.resolved
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+.vscode/
+
+# Test artifacts
+.coverage/
+coverage.xml
+*.profraw
+*.profdata
+
+# Local environment
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+yarn.lock
+package-lock.json
+
+# Build outputs
+DerivedData/
+.xcarchive
+SourcePackages/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+.#*
